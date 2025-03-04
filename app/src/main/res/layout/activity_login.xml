@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="24dp"
+    android:background="@color/white">
+
+    <!-- ✅ App Logo -->
+    <ImageView
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:src="@drawable/logo"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- ✅ Title -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Kinvo Easy Inventory"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:layout_marginBottom="20dp"/>
+
+    <!-- ✅ API Key Input -->
+    <EditText
+        android:id="@+id/etApiKey"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/input_background"
+        android:hint="Enter ePOSNow API Key"
+        android:inputType="textPassword"
+        android:padding="12dp"
+        android:textColorHint="#757575"
+        android:textSize="14sp"
+        tools:ignore="TouchTargetSizeCheck" />
+
+    <!-- ✅ API Secret Input with Toggle -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <EditText
+            android:id="@+id/etApiSecret"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/input_background"
+            android:hint="Enter ePOSNow API Secret"
+            android:inputType="textPassword"
+            android:padding="12dp"
+            android:textColorHint="#757575"
+            android:textSize="14sp"
+            tools:ignore="TouchTargetSizeCheck" />
+
+        <ImageButton
+            android:id="@+id/btnTogglePassword"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_eye"
+            tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+    </LinearLayout>
+
+    <!-- ✅ Location ID Input Field -->
+    <EditText
+        android:id="@+id/etLocationId"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/input_background"
+        android:hint="Enter Location ID"
+        android:inputType="number"
+        android:padding="12dp"
+        android:textColorHint="#757575"
+        android:textSize="14sp"
+        tools:ignore="TouchTargetSizeCheck" />
+
+
+
+    <!-- ✅ Authenticate Button -->
+    <Button
+        android:id="@+id/btnAuthenticate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Authenticate"
+        android:textSize="16sp"
+        android:background="@drawable/button_background"
+        android:textColor="@color/white"
+        android:layout_marginTop="16dp"/>
+
+</LinearLayout>

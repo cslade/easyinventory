@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">EasyInventory</string>
+    <string name="barcode">Barcode:</string>
+    <string name="update_inventory">Update Inventory</string>
+    <string name="enter_new_quantity">Enter new quantity</string>
+    <string name="current_stock">Current Stock:</string>
+    <string name="product">Product:</string>
+    <string name="enter_barcode">Enter Barcode</string>
+    <string name="enter_location_id">Enter Location ID</string>
+    <string name="enter_api_key">Enter API Key</string>
+    <string name="enter_api_secret">Enter API Secret</string>
+    <string name="authenticate">Authenticate</string>
+    <string name="search_by_barcode">Search by Barcode</string>
+    <string name="search_all_product_stock">Search All Product Stock</string>
+    <string name="api_response_will_appear_here">API response will appear here</string>
+    <string name="product_name">Product Name</string>
+    <string name="stock">Stock:</string>
+    <string name="enter_api_keys">4742EDED4BA34A11B62DC3E4D843FBCF</string>
+    <string name="enter_api_secrets">2D288AEB24284983901C3EFCE70D4234</string>
+</resources>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@color/white">
+
+    <!-- ✅ Search Bar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/etBarcode"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="50dp"
+            android:hint="Enter Barcode (Optional)"
+            android:textSize="16sp"
+            android:padding="12dp"
+            android:background="@drawable/input_background"/>
+
+        <Button
+            android:id="@+id/btnSearchProduct"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:text="Search"
+            android:textSize="16sp"
+            android:background="@drawable/button_background"
+            android:textColor="@color/white"
+            android:layout_marginLeft="8dp"/>
+    </LinearLayout>
+
+
+    <!-- ✅ ProgressBar (Hidden Initially) -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_gravity="center"
+        android:layout_marginTop="8dp"/>
+
+    <!-- ✅ Product Info TextView -->
+    <TextView
+        android:id="@+id/tvProductInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Product Information"
+        android:textSize="16sp"
+        android:textColor="@color/black"
+        android:padding="8dp"
+        android:visibility="gone"/>
+
+    <!-- ✅ Product List -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp"/>
+
+</LinearLayout>
+
+
+

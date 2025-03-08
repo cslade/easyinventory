@@ -52,5 +52,6 @@ dependencies {
     implementation(libs.androidx.recyclerview)
     implementation(libs.okhttp.v4100) // For API requests
     implementation(libs.gson) // For JSON parsing
+
     // ... other dependencies
 }

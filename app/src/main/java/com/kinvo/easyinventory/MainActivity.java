@@ -1,7 +1,9 @@
 package com.kinvo.easyinventory;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
@@ -10,6 +12,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -49,6 +52,19 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra("AUTH_TOKEN", authToken);
                 intent.putExtra("LOCATION_ID", locationId);
                 startActivity(intent);
+
+                // Retrieve user preference
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+                boolean isDarkMode = prefs.getBoolean("dark_mode", false);
+
+                // Apply the theme dynamically
+                if (isDarkMode) {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                } else {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                }
+
+                setContentView(R.layout.activity_main);
             }
         });
     }

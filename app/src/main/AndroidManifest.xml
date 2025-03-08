@@ -11,7 +11,8 @@
         android:label="Kinvo Easy Inventory"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.EasyInventory">
+        android:theme="@style/Theme.Material3.DynamicColors.DayNight.NoActionBar">
+
 
         <!-- ✅ Splash Screen (First screen user sees) -->
         <activity android:name=".SplashActivity"
@@ -27,10 +28,16 @@
         <activity android:name=".LoginActivity" />
 
         <!-- ✅ Product Search Screen -->
-        <activity android:name=".ProductSearchActivity" />
+        <activity android:name=".ProductSearchActivity"
+            android:theme="@style/Theme.Material3.DynamicColors.DayNight.NoActionBar"/>
+        <activity android:name=".UserAgreementActivity"
+            android:theme="@style/Theme.Material3.DynamicColors.DayNight.NoActionBar"/>
+        <activity android:name=".PrivacyPolicyActivity" />
 
         <!-- ✅ Main Activity -->
         <activity android:name=".MainActivity" />
+
+
 
         <!-- ✅ Other Activities (If Any) -->
         <activity android:name=".SomeOtherActivity" />

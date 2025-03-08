@@ -1,10 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_500">#6200EE</color>
-    <color name="purple_700">#3700B3</color>
-    <color name="teal_200">#03DAC5</color>
-    <color name="black">#000000</color>
-    <color name="white">#FFFFFF</color>
+
+        <!-- Primary Colors -->
+        <color name="colorPrimary">#6200EE</color>
+        <color name="colorPrimaryVariant">#3700B3</color>
+        <color name="colorOnPrimary">#FFFFFF</color>
+        <color name="purple_700">#6200EE</color>
+        <color name="purple_500">#3700B3</color>
+        <color name="purple_200">#EFB8C8</color>
+        <color name="purple_100">#F3E5F5</color>
+        <color name="white">#FFFFFF</color>
+        <color name="black">#000000</color>
+
+        <!-- Secondary Colors -->
+        <color name="colorSecondary">#03DAC5</color>
+        <color name="colorSecondaryVariant">#018786</color>
+        <color name="colorOnSecondary">#000000</color>
+
+        <!-- Background & Surface -->
+        <color name="background_light">#FFFFFF</color> <!-- Light Mode Background -->
+        <color name="background_dark">#121212</color> <!-- Dark Mode Background -->
+        <color name="surface">#FFFFFF</color>
+        <color name="onSurface">#000000</color>
+
+        <!-- Error Colors -->
+        <color name="error">#B00020</color>
+        <color name="onError">#FFFFFF</color>
+
+        <!-- Text Colors -->
+        <color name="textPrimary">#212121</color>
+        <color name="textSecondary">#757575</color>
+
+
+
 
     <!-- ✅ Custom Green Color (Fix for your error) -->
     <color name="green">#4CAF50</color>  <!-- This is a Material Green -->

@@ -1,16 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
     android:background="@color/white">
 
-    <!-- ✅ Search Bar -->
+    <!-- ✅ Toolbar with Ellipsis Menu -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        app:title="Inventory Update"
+        app:titleTextColor="@android:color/white"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+
+    <!-- ✅ Search Bar & Search Button -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_marginTop="12dp">
 
         <EditText
             android:id="@+id/etBarcode"
@@ -32,7 +44,6 @@
             android:textColor="@color/white"
             android:layout_marginLeft="8dp"/>
     </LinearLayout>
-
 
     <!-- ✅ ProgressBar (Hidden Initially) -->
     <ProgressBar
@@ -62,6 +73,5 @@
         android:padding="8dp"/>
 
 </LinearLayout>
-
 
 

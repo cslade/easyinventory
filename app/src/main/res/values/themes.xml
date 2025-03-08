@@ -1,19 +1,28 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- ✅ Default App Theme -->
-    <style name="Theme.EasyInventory" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/purple_500</item>
-        <item name="colorPrimaryVariant">@color/purple_700</item>
-        <item name="colorOnPrimary">@color/white</item>
-        <item name="colorSecondary">@color/teal_200</item>
-        <item name="colorOnSecondary">@color/black</item>
-    </style>
 
-    <!-- ✅ Splash Screen Theme (Fix for your error) -->
+    <!-- App Theme -->
+
+        <style name="Theme.EasyInventory" parent="Theme.Material3.Light.NoActionBar">
+            <!-- Primary Colors -->
+            <item name="colorPrimary">@color/colorPrimary</item>
+            <item name="colorPrimaryVariant">@color/colorPrimaryVariant</item>
+            <item name="colorOnPrimary">@color/colorOnPrimary</item>
+
+            <!-- Background Color for Light Mode -->
+            <item name="android:colorBackground">@color/background_light</item>
+
+            <!-- Surface & Text Colors -->
+            <item name="colorSurface">@color/surface</item>
+            <item name="colorOnSurface">@color/onSurface</item>
+            <item name="android:textColor">@color/textPrimary</item>
+        </style>
+
+
+
+    <!-- ✅ Fix: Add Missing Splash Screen Theme -->
     <style name="Theme.SplashScreen" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="android:windowBackground">@drawable/splash_background</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowBackground">@color/colorPrimary</item>
+        <item name="android:statusBarColor">@color/colorPrimaryVariant</item>
     </style>
-
 </resources>

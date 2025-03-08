@@ -97,6 +97,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
         final EditText input = new EditText(context);
         input.setInputType(android.text.InputType.TYPE_CLASS_NUMBER | android.text.InputType.TYPE_NUMBER_FLAG_SIGNED);
+        input.setHint("Enter Product Quantity");  // ✅ Add hint here
         builder.setView(input);
 
         builder.setPositiveButton("Update", (dialog, which) -> {

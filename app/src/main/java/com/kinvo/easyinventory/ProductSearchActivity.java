@@ -93,9 +93,6 @@ public class ProductSearchActivity extends AppCompatActivity {
                 imm.hideSoftInputFromWindow(etBarcode.getWindowToken(), 0);
             }
         });
-
-        // ✅ Fetch all products initially
-        fetchAllProducts();
     }
 
     private void fetchAllProducts() {

@@ -15,7 +15,7 @@
         android:textStyle="bold"
         android:paddingBottom="8dp" />
 
-    <Switch
+    <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/switchTheme"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

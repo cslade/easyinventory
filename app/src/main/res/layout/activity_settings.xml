@@ -2,24 +2,29 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:padding="16dp"
     android:background="@color/background_light">
 
-    <!-- App Theme Toggle -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="App Theme"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:paddingBottom="8dp" />
+    <!-- ✅ Toolbar (App Bar) -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        app:title="Settings"
+        app:titleTextColor="@android:color/white" />
 
-    <androidx.appcompat.widget.SwitchCompat
+    <!-- ✅ Theme Toggle Switch -->
+    <Switch
         android:id="@+id/switchTheme"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Enable Dark Mode" />
+        android:text="Dark Mode"
+        android:padding="16dp" />
+
+
 
     <!-- User Agreement -->
     <Button
@@ -36,5 +41,7 @@
         android:layout_height="wrap_content"
         android:text="Privacy Policy"
         android:layout_marginTop="8dp" />
+
+
 
 </LinearLayout>

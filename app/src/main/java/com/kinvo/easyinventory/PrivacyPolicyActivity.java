@@ -5,39 +5,41 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import java.util.Objects;
 
 public class PrivacyPolicyActivity extends AppCompatActivity {
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_privacy_policy);
 
-        // ✅ Setup Toolbar
+        setupToolbar();
+        loadPrivacyPolicy();
+    }
+
+    private void setupToolbar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // ✅ Enable Back Button
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle("Privacy Policy");
-        }
-
-        // ✅ Load HTML File in WebView
-        WebView webView = findViewById(R.id.webView);
-        WebSettings webSettings = webView.getSettings();
-        webSettings.setJavaScriptEnabled(true);
-        webView.loadUrl("file:///android_asset/privacy_policy.html");
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setTitle(R.string.privacy_policy_title); // Use string resource
     }
 
-    // ✅ Handle Back Button Click
+    private void loadPrivacyPolicy() {
+        WebView webView = findViewById(R.id.webView);
+        WebSettings webSettings = webView.getSettings();
+
+        webSettings.setJavaScriptEnabled(false); // Disable JavaScript if not needed.
+        webView.loadUrl("file:///android_asset/privacy_policy.html");
+        webView.setVerticalScrollBarEnabled(true); // Enable vertical scroll bar
+        webView.setHorizontalScrollBarEnabled(false); // Disable horizontal scroll bar
+    }
+
     @Override
     public boolean onSupportNavigateUp() {
-        finish();
+        onBackPressed();
         return true;
     }
 }
-
-
-
-
 

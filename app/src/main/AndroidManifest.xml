@@ -23,8 +23,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <!-- ✅ Settings Screen -->
+        <activity android:name=".SettingsActivity" />
+
 
         <!-- ✅ Login Screen -->
+        <activity android:name=".MembershipLoginActivity"
+            android:theme="@style/Theme.EasyInventory"/>
+
         <activity android:name=".LoginActivity" />
 
         <!-- ✅ Product Search Screen -->
@@ -33,6 +39,8 @@
         <activity android:name=".UserAgreementActivity"
             android:theme="@style/Theme.Material3.DynamicColors.DayNight.NoActionBar"/>
         <activity android:name=".PrivacyPolicyActivity" />
+        <activity android:name=".WebViewActivity" />
+
 
         <!-- ✅ Main Activity -->
         <activity android:name=".MainActivity" />

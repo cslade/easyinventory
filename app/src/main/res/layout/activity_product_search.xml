@@ -15,7 +15,7 @@
         android:background="?attr/colorPrimary"
         app:title="Inventory Update"
         app:titleTextColor="@android:color/white"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+        app:popupTheme="@style/ThemeOverlay.AppCompat.DayNight"/>
 
     <!-- ✅ Search Bar & Search Button -->
     <LinearLayout

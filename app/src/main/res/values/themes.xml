@@ -1,6 +1,5 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-
-
+    
     <!-- App Theme -->
 
         <style name="Theme.EasyInventory" parent="Theme.Material3.Light.NoActionBar">

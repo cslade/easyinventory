@@ -1,34 +1,33 @@
-<?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <!-- Settings -->
     <item
         android:id="@+id/action_settings"
-        android:icon="@drawable/ic_info"
         android:title="Settings"
-        app:showAsAction="never" />
+        android:icon="@drawable/ic_settings"
+        app:showAsAction="never"/>
 
     <!-- User Agreement -->
     <item
         android:id="@+id/action_user_agreement"
         android:title="User Agreement"
         android:icon="@drawable/ic_document"
-        app:showAsAction="never" />
+        app:showAsAction="never"/>
 
     <!-- Privacy Policy -->
     <item
         android:id="@+id/action_privacy_policy"
         android:title="Privacy Policy"
         android:icon="@drawable/ic_privacy"
-        app:showAsAction="never" />
+        app:showAsAction="never"/>
 
     <!-- Logout -->
     <item
         android:id="@+id/action_logout"
         android:title="Logout"
         android:icon="@drawable/ic_logout"
-        app:showAsAction="never" />
-
+        app:showAsAction="never"/>
 </menu>
+
 

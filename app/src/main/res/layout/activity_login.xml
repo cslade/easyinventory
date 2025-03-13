@@ -58,6 +58,9 @@
             android:textSize="14sp"
             tools:ignore="TouchTargetSizeCheck" />
 
+
+
+
         <ImageButton
             android:id="@+id/btnTogglePassword"
             android:layout_width="40dp"
@@ -81,7 +84,12 @@
         android:textSize="14sp"
         tools:ignore="TouchTargetSizeCheck" />
 
-
+    <CheckBox
+        android:id="@+id/checkboxRememberMeAPI"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Remember Me"
+        android:padding="4dp"/>
 
     <!-- ✅ Authenticate Button -->
     <Button

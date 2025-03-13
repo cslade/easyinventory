@@ -1,15 +1,13 @@
 package com.kinvo.easyinventory;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import android.widget.CompoundButton;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.Toolbar;
-import com.google.android.material.switchmaterial.SwitchMaterial;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -19,10 +17,11 @@ public class SettingsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        applySavedTheme(); // ✅ Ensure dark mode is applied before setting layout
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
-        // ✅ Setup Toolbar with Menu
+        // ✅ Setup Toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
@@ -30,52 +29,43 @@ public class SettingsActivity extends AppCompatActivity {
             getSupportActionBar().setTitle("Settings");
         }
 
-        // ✅ Initialize SharedPreferences
+        // ✅ Use SwitchCompat instead of SwitchMaterial
+        SwitchCompat switchTheme = findViewById(R.id.switchTheme);
         appPrefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
 
-        // ✅ Dark Mode Switch
-        SwitchMaterial switchTheme = findViewById(R.id.switchTheme);
         boolean isDarkModeEnabled = appPrefs.getBoolean(KEY_DARK_MODE, false);
         switchTheme.setChecked(isDarkModeEnabled);
 
-        switchTheme.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            SharedPreferences.Editor editor = appPrefs.edit();
-            editor.putBoolean(KEY_DARK_MODE, isChecked);
-            editor.apply();
-            AppCompatDelegate.setDefaultNightMode(
-                    isChecked ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO
-            );
-        });
+        // ✅ Listen for theme toggle
+        switchTheme.setOnCheckedChangeListener(this::onThemeToggle);
     }
 
-    // ✅ Inflate Menu
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_settings, menu);
+    public boolean onSupportNavigateUp() {
+        finish(); // ✅ Closes activity and returns to the previous screen
         return true;
     }
 
-    // ✅ Handle Menu Clicks (Logout)
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_logout) {
-            logoutUser();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+    private void onThemeToggle(CompoundButton buttonView, boolean isChecked) {
+        saveThemePreference(isChecked);
+        applyTheme(isChecked);
     }
 
-    // ✅ Logout Function
-    private void logoutUser() {
+    private void saveThemePreference(boolean isDarkModeEnabled) {
         SharedPreferences.Editor editor = appPrefs.edit();
-        editor.remove("authToken");  // Clear authentication data
+        editor.putBoolean(KEY_DARK_MODE, isDarkModeEnabled);
         editor.apply();
+    }
 
-        // ✅ Redirect to Membership Login Screen
-        Intent intent = new Intent(this, MembershipLoginActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // Clear backstack
-        startActivity(intent);
-        finish();  // Close SettingsActivity
+    private void applyTheme(boolean isDarkModeEnabled) {
+        int nightMode = isDarkModeEnabled ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO;
+        AppCompatDelegate.setDefaultNightMode(nightMode);
+    }
+
+    private void applySavedTheme() {
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        boolean isDarkModeEnabled = prefs.getBoolean(KEY_DARK_MODE, false);
+        int nightMode = isDarkModeEnabled ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO;
+        AppCompatDelegate.setDefaultNightMode(nightMode);
     }
 }

@@ -17,33 +17,37 @@
         <!-- ✅ Splash Screen (First screen user sees) -->
         <activity android:name=".SplashActivity"
             android:exported="true"
-            android:theme="@style/Theme.SplashScreen">
+            android:theme="@style/Theme.EasyInventory">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <!-- ✅ Settings Screen -->
-        <activity android:name=".SettingsActivity" />
+        <activity android:name=".SettingsActivity"
+            android:theme="@style/Theme.EasyInventory"/>
 
 
         <!-- ✅ Login Screen -->
         <activity android:name=".MembershipLoginActivity"
             android:theme="@style/Theme.EasyInventory"/>
 
-        <activity android:name=".LoginActivity" />
+        <activity android:name=".LoginActivity"
+            android:theme="@style/Theme.EasyInventory"/>
 
         <!-- ✅ Product Search Screen -->
         <activity android:name=".ProductSearchActivity"
-            android:theme="@style/Theme.Material3.DynamicColors.DayNight.NoActionBar"/>
+            android:theme="@style/Theme.EasyInventory"/>
         <activity android:name=".UserAgreementActivity"
-            android:theme="@style/Theme.Material3.DynamicColors.DayNight.NoActionBar"/>
+            android:theme="@style/Theme.EasyInventory"/>
         <activity android:name=".PrivacyPolicyActivity" />
-        <activity android:name=".WebViewActivity" />
+        <activity android:name=".WebViewActivity"
+            android:theme="@style/Theme.EasyInventory"/>
 
 
         <!-- ✅ Main Activity -->
-        <activity android:name=".MainActivity" />
+        <activity android:name=".MainActivity"
+            android:theme="@style/Theme.EasyInventory"/>
 
 
 

@@ -71,7 +71,13 @@ public class ProductSearchActivity extends AppCompatActivity {
         // ✅ Retrieve Authentication Token & Location ID
         SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
         authToken = prefs.getString("authToken", "");
-        locationId = prefs.getInt("locationId", 0);
+        String storedLocationId = prefs.getString("locationId", "0");
+        try {
+            locationId = Integer.parseInt(storedLocationId);
+        } catch (NumberFormatException e) {
+            Log.e("ProductSearchActivity", "❌ Error parsing locationId: " + storedLocationId, e);
+            locationId = 0; // Default to 0 if parsing fails
+        }
 
         Log.d(TAG, "Retrieved Auth Token: " + authToken);
         Log.d(TAG, "Retrieved Location ID: " + locationId);
@@ -111,7 +117,7 @@ public class ProductSearchActivity extends AppCompatActivity {
         return true;
     }
 
-    // ✅ Handle menu item clicks
+    // ✅ Handle Menu Clicks
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_user_agreement) {
@@ -129,7 +135,6 @@ public class ProductSearchActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-
 
     // ✅ Fetch Product by Barcode
     private void fetchProductByBarcode() {
@@ -198,7 +203,6 @@ public class ProductSearchActivity extends AppCompatActivity {
                     } else {
                         Toast.makeText(this, "No response from server. Check your internet.", Toast.LENGTH_LONG).show();
                     }
-
                 }) {
             @Override
             public Map<String, String> getHeaders() {

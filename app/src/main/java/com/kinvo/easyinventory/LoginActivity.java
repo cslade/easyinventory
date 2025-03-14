@@ -3,6 +3,7 @@ package com.kinvo.easyinventory;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -10,7 +11,6 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-import android.util.Base64;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -19,7 +19,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText etApiKey, etApiSecret, etLocationId;
     private Button btnAuthenticate;
     private ProgressBar progressBar;
-    private CheckBox checkboxRememberMe; // ✅ Added Remember Me checkbox
+    private CheckBox checkboxRememberMe;
 
     private static final String TAG = "LoginActivity";
     private static final String PREFS_NAME = "MyAppPrefs";
@@ -28,7 +28,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login); // ✅ Make sure this is the correct layout
+        setContentView(R.layout.activity_login);
 
         // ✅ Initialize UI Elements
         etApiKey = findViewById(R.id.etApiKey);
@@ -36,7 +36,7 @@ public class LoginActivity extends AppCompatActivity {
         etLocationId = findViewById(R.id.etLocationId);
         btnAuthenticate = findViewById(R.id.btnAuthenticate);
         progressBar = findViewById(R.id.progressBar);
-        checkboxRememberMe = findViewById(R.id.checkboxRememberMeAPI); // ✅ Initialize checkbox
+        checkboxRememberMe = findViewById(R.id.checkboxRememberMeAPI);
 
         sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
 
@@ -73,26 +73,29 @@ public class LoginActivity extends AppCompatActivity {
         String credentials = apiKey + ":" + apiSecret;
         String authToken = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
 
-        Log.d(TAG, "Generated Auth Token: " + authToken);  // Debugging
+        Log.d(TAG, "Generated Auth Token: " + authToken);
 
         // ✅ Store authToken and locationId in SharedPreferences
-        SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
+        SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("authToken", authToken);
-        editor.putInt("locationId", locationId);
+        editor.putString("locationId", String.valueOf(locationId)); // ✅ Store as String
         editor.apply();
+
 
         Log.d(TAG, "Saved Auth Token: " + authToken);
         Log.d(TAG, "Saved Location ID: " + locationId);
+
+        // ✅ Save credentials if "Remember Me" is checked
+        saveCredentials(apiKey, apiSecret, locationIdString, checkboxRememberMe.isChecked());
 
         navigateToProductSearch();
     }
 
     private void navigateToProductSearch() {
         Intent intent = new Intent(this, ProductSearchActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // Clear back stack
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
-        finish(); // Close LoginActivity
+        finish();
     }
 
     // ✅ Save API credentials only if "Remember Me" is checked
@@ -107,12 +110,14 @@ public class LoginActivity extends AppCompatActivity {
             Log.d(TAG, "✅ Saving API Secret: " + apiSecret);
             Log.d(TAG, "✅ Saving Location ID: " + locationId);
         } else {
-            editor.clear();
+            editor.remove("apiKey");
+            editor.remove("apiSecret");
+            editor.remove("locationId");
+            editor.putBoolean("rememberMe", false);
             Log.d(TAG, "❌ Clearing saved credentials.");
         }
         editor.apply();
     }
-
 
     // ✅ Load saved credentials if "Remember Me" was checked
     private void loadSavedCredentials() {

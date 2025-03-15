@@ -25,6 +25,7 @@ public class SplashActivity extends AppCompatActivity {
 
         // ✅ Execute the navigation after SPLASH_DELAY
         new Handler(Looper.getMainLooper()).postDelayed(navigationRunnable, SPLASH_DELAY);
+
     }
 
     // ✅ Determines which screen to navigate to based on login status

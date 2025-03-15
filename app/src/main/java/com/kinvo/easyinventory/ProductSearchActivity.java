@@ -19,9 +19,9 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.kinvo.easyinventory.adapters.ProductAdapter;
@@ -60,12 +60,31 @@ public class ProductSearchActivity extends AppCompatActivity {
         retrievePreferences();
         setupRecyclerView();
         setupSearchButton();
+        Toolbar toolbar = findViewById(R.id.pd_toolbar);
+        setSupportActionBar(toolbar);
+
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_product_search, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_settings) {
+            startActivity(new Intent(this, SettingsActivity.class));
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 
     private void initializeToolbar() {
         Toolbar toolbar = findViewById(R.id.pd_toolbar);
         setSupportActionBar(toolbar);
-
     }
 
     private void initializeUI() {
@@ -99,7 +118,7 @@ public class ProductSearchActivity extends AppCompatActivity {
 
     private void handleAuthenticationError() {
         Log.e(TAG, "❌ No Auth Token Found!");
-        showToast("Authentication error. Please log in again.");
+        Toast.makeText(this, "Authentication error. Please log in again.", Toast.LENGTH_SHORT).show();
         finish(); // Close activity if authentication fails
     }
 
@@ -112,8 +131,34 @@ public class ProductSearchActivity extends AppCompatActivity {
     private void setupSearchButton() {
         btnSearchProduct.setOnClickListener(v -> fetchProductByBarcode());
     }
+    private Map<String, String> getRequestHeaders() {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", "Basic " + authToken);
+        headers.put("Content-Type", "application/json");
+        return headers;
+    }
 
-    // ✅ Fetch Products
+    private void handleRequestError(VolleyError error) {
+        Log.e(TAG, "❌ Request Failed: " + error.toString());
+
+        if (error.networkResponse != null) {
+            int statusCode = error.networkResponse.statusCode;
+            Log.e(TAG, "❌ Status Code: " + statusCode);
+            switch (statusCode) {
+                case 401:
+                    Toast.makeText(this, "Unauthorized! Please reauthenticate.", Toast.LENGTH_SHORT).show();
+                    break;
+                case 404:
+                    Toast.makeText(this, "Product not found. Try another barcode.", Toast.LENGTH_SHORT).show();
+                    break;
+                default:
+                    Toast.makeText(this, "Error: " + statusCode, Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            Toast.makeText(this, "No response from server. Check your internet.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private void fetchProductByBarcode() {
         String barcode = etBarcode.getText().toString().trim();
         showProgressBar();
@@ -145,7 +190,14 @@ public class ProductSearchActivity extends AppCompatActivity {
         queue.add(request);
     }
 
-    // ✅ Handle API Response
+    private void showProgressBar() {
+        if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
+    }
+
+    private void hideProgressBar() {
+        if (progressBar != null) progressBar.setVisibility(View.GONE);
+    }
+
     private void handleProductResponse(JSONObject response) {
         try {
             JSONArray dataArray = response.getJSONArray("Data");
@@ -164,91 +216,13 @@ public class ProductSearchActivity extends AppCompatActivity {
                 }
                 productAdapter.notifyDataSetChanged();
             } else {
-                showToast("No products found.");
+                Toast.makeText(this, "No products found.", Toast.LENGTH_SHORT).show();
             }
         } catch (JSONException e) {
             Log.e(TAG, "❌ JSON Parsing Error: " + e.getMessage());
-            showToast("Error parsing product data.");
+            Toast.makeText(this, "Error parsing product data.", Toast.LENGTH_SHORT).show();
         }
-    }
-
-    // ✅ Handle API Errors
-    private void handleRequestError(com.android.volley.VolleyError error) {
-        Log.e(TAG, "❌ Request Failed: " + error.toString());
-
-        if (error.networkResponse != null) {
-            int statusCode = error.networkResponse.statusCode;
-            Log.e(TAG, "❌ Status Code: " + statusCode);
-            switch (statusCode) {
-                case 401:
-                    showToast("Unauthorized! Please reauthenticate.");
-                    break;
-                case 404:
-                    showToast("Product not found. Try another barcode.");
-                    break;
-                default:
-                    showToast("Error: " + statusCode);
-            }
-        } else {
-            showToast("No response from server. Check your internet.");
-        }
-    }
-
-    // ✅ Logout User
-    private void logoutUser() {
-        SharedPreferences.Editor editor = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();
-        editor.clear();
-        editor.apply();
-
-        Intent intent = new Intent(this, MembershipLoginActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
-    }
-
-    // ✅ Create Options Menu
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_product_search, menu);
-        return true;
-    }
-
-    // ✅ Handle Menu Clicks
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.action_user_agreement) {
-            startActivity(new Intent(this, UserAgreementActivity.class));
-        } else if (id == R.id.action_settings) {
-            startActivity(new Intent(this, SettingsActivity.class));
-        } else if (id == R.id.action_privacy_policy) {
-            startActivity(new Intent(this, PrivacyPolicyActivity.class));
-        } else if (id == R.id.action_logout) {
-            logoutUser();
-        } else {
-            return super.onOptionsItemSelected(item);
-        }
-        return true;
-    }
-
-    // ✅ Helper Methods
-    private void showProgressBar() {
-        if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
-    }
-
-    private void hideProgressBar() {
-        if (progressBar != null) progressBar.setVisibility(View.GONE);
-    }
-
-    private void showToast(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-    }
-
-    private Map<String, String> getRequestHeaders() {
-        Map<String, String> headers = new HashMap<>();
-        headers.put("Authorization", "Basic " + authToken);
-        headers.put("Content-Type", "application/json");
-        return headers;
     }
 }
+
+

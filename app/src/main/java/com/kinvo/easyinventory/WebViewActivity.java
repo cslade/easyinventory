@@ -44,6 +44,7 @@ public class WebViewActivity extends AppCompatActivity {
 
         // ✅ Load the URL
         loadUrlFromIntent();
+
     }
 
     /**

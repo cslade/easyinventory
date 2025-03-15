@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.CompoundButton;
 
@@ -11,7 +13,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.Toolbar;
-
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -35,6 +36,7 @@ public class SettingsActivity extends AppCompatActivity {
             getSupportActionBar().setTitle("Settings");
         }
 
+
         // Initialize UI
         SwitchCompat switchTheme = findViewById(R.id.switchTheme);
         appPrefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
@@ -47,19 +49,25 @@ public class SettingsActivity extends AppCompatActivity {
         switchTheme.setOnCheckedChangeListener(this::onThemeToggle);
 
         // User Agreement Button
-        findViewById(R.id.btnUserAgreement).setOnClickListener(v ->
+        findViewById(R.id.tvUserAgreement).setOnClickListener(v ->
                 startActivity(new Intent(SettingsActivity.this, UserAgreementActivity.class))
         );
 
         // Privacy Policy Button
-        findViewById(R.id.btnPrivacyPolicy).setOnClickListener(v ->
+        findViewById(R.id.tvPrivacyPolicy).setOnClickListener(v ->
                 startActivity(new Intent(SettingsActivity.this, PrivacyPolicyActivity.class))
+        );
+
+        // About Button
+        findViewById(R.id.tvAbout).setOnClickListener(v ->
+                startActivity(new Intent(SettingsActivity.this, AboutActivity.class))
         );
 
         // Logout Button
         Button btnLogout = findViewById(R.id.btnLogout);
         btnLogout.setOnClickListener(v -> logoutUser());
     }
+
 
     // Handle Theme Toggle
     private void onThemeToggle(CompoundButton buttonView, boolean isChecked) {

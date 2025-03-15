@@ -81,7 +81,6 @@ public class LoginActivity extends AppCompatActivity {
         editor.putString("locationId", String.valueOf(locationId)); // ✅ Store as String
         editor.apply();
 
-
         Log.d(TAG, "Saved Auth Token: " + authToken);
         Log.d(TAG, "Saved Location ID: " + locationId);
 

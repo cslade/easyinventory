@@ -26,6 +26,7 @@
         android:text="Easy Inventory"
         android:textSize="20sp"
         android:textStyle="bold"
+        android:fontFamily="@font/trade_winds"
         android:textColor="@color/black"
         android:layout_marginBottom="20dp"/>
 
@@ -70,6 +71,8 @@
         android:id="@+id/btnLogin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/button_background"
+        android:textColor="@color/white"
         android:text="Sign in"/>
 
     <!-- Horizontal Layout for Sign Up and Forgot Password -->

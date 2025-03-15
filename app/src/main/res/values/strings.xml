@@ -21,4 +21,9 @@
     <string name="update_button_text">Update</string>
     <string name="cancel_button_text">Cancel</string>
     <string name="invalid_stock_quantity_message">Please enter a valid stock quantity!</string>
+    <string name="app_info_title">App Info</string>
+    <string name="about_text">\@2025 Kivno LLC\n\nVersion %1$s</string>
+
+
+
 </resources>

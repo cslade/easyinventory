@@ -26,6 +26,8 @@
         <!-- ✅ Settings Screen -->
         <activity android:name=".SettingsActivity"
             android:theme="@style/Theme.EasyInventory"/>
+        <activity android:name=".AboutActivity" />
+
 
 
         <!-- ✅ Login Screen -->

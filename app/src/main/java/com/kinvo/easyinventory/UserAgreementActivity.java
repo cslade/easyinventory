@@ -24,6 +24,7 @@ public class UserAgreementActivity extends AppCompatActivity {
 
         // ✅ Load User Agreement
         loadUserAgreement();
+
     }
 
     /**

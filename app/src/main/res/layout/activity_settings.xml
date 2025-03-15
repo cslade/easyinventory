@@ -24,23 +24,51 @@
         android:text="Dark Mode"
         android:padding="16dp" />
 
-    <!-- User Agreement -->
-    <Button
-        android:id="@+id/btnUserAgreement"
-        android:layout_width="match_parent"
+    <!-- Clickable Text Links (Left Aligned) -->
+    <TextView
+        android:id="@+id/tvUserAgreement"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="start"
+        android:clickable="true"
+        android:focusable="true"
+        android:minHeight="48dp"
+        android:paddingTop="16dp"
         android:text="User Agreement"
-        android:layout_marginTop="16dp" />
+        android:textColor="@color/blue" />
 
-    <!-- Privacy Policy -->
-    <Button
-        android:id="@+id/btnPrivacyPolicy"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/tvPrivacyPolicy"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="start"
+        android:clickable="true"
+        android:focusable="true"
+        android:minHeight="48dp"
+        android:paddingTop="8dp"
         android:text="Privacy Policy"
-        android:layout_marginTop="8dp" />
+        android:textColor="@color/blue" />
 
-    <!-- Logout Button -->
+    <TextView
+        android:id="@+id/tvAbout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start"
+        android:clickable="true"
+        android:focusable="true"
+        android:minWidth="48dp"
+        android:minHeight="48dp"
+        android:paddingTop="8dp"
+        android:text="About"
+        android:textColor="@color/blue" />
+
+    <!-- Spacer to push logout button to the bottom -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <!-- Logout Button at the Bottom -->
     <Button
         android:id="@+id/btnLogout"
         android:layout_width="match_parent"
@@ -49,6 +77,4 @@
         android:textColor="@android:color/white"
         android:backgroundTint="@color/red"
         android:layout_marginTop="16dp" />
-
 </LinearLayout>
-

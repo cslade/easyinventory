@@ -9,9 +9,11 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Welcome to Kinvo Easy Inventory"
+        android:fontFamily="@font/trade_winds"
+        android:gravity="center"
+        android:text="Welcome to\n Kinvo Easy Inventory"
+        android:textColor="@color/black"
         android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="@color/black"/>
+        android:textStyle="bold" />
 
 </LinearLayout>

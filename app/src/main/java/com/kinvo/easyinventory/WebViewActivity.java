@@ -1,7 +1,6 @@
 package com.kinvo.easyinventory;
 
 import android.annotation.SuppressLint;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.webkit.WebSettings;
@@ -51,7 +50,7 @@ public class WebViewActivity extends AppCompatActivity {
      * Configures the WebSettings for the WebView.
      */
     private void configureWebSettings(WebSettings webSettings) {
-        webSettings.setJavaScriptEnabled(true);
+        webSettings.setJavaScriptEnabled(false);
         webSettings.setDomStorageEnabled(true);
         webSettings.setLoadsImagesAutomatically(true);
         webSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
@@ -63,12 +62,8 @@ public class WebViewActivity extends AppCompatActivity {
         webSettings.setLoadWithOverviewMode(true);
 
         // Improve performance
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            WebView.setWebContentsDebuggingEnabled(true);
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            webSettings.setAllowUniversalAccessFromFileURLs(true);
-        }
+        WebView.setWebContentsDebuggingEnabled(true);
+        webSettings.setAllowUniversalAccessFromFileURLs(true);
     }
 
     /**

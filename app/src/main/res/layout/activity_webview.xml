@@ -14,7 +14,7 @@
         app:title="Terms of Service"
         app:titleTextColor="@android:color/white"
         app:navigationIcon="@drawable/ic_arrow_back"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+        app:popupTheme="@style/ThemeOverlay.AppCompat.DayNight.ActionBar"/>
 
     <!-- ✅ WebView to display content -->
     <WebView

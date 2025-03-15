@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:padding="16dp"
     android:background="@color/background_light">
 
-    <!-- ✅ Toolbar (App Bar) -->
+    <!-- Toolbar -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
@@ -16,7 +16,7 @@
         app:title="Settings"
         app:titleTextColor="@android:color/white" />
 
-    <!-- ✅ Theme Toggle Switch -->
+    <!-- Theme Toggle Switch -->
     <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/switchTheme"
         android:layout_width="wrap_content"
@@ -24,5 +24,31 @@
         android:text="Dark Mode"
         android:padding="16dp" />
 
+    <!-- User Agreement -->
+    <Button
+        android:id="@+id/btnUserAgreement"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="User Agreement"
+        android:layout_marginTop="16dp" />
+
+    <!-- Privacy Policy -->
+    <Button
+        android:id="@+id/btnPrivacyPolicy"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Privacy Policy"
+        android:layout_marginTop="8dp" />
+
+    <!-- Logout Button -->
+    <Button
+        android:id="@+id/btnLogout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Logout"
+        android:textColor="@android:color/white"
+        android:backgroundTint="@color/red"
+        android:layout_marginTop="16dp" />
 
 </LinearLayout>
+

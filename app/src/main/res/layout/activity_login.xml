@@ -10,8 +10,8 @@
 
     <!-- ✅ App Logo -->
     <ImageView
-        android:layout_width="120dp"
-        android:layout_height="120dp"
+        android:layout_width="160dp"
+        android:layout_height="160dp"
         android:src="@drawable/logo"
         android:layout_marginBottom="16dp"/>
 
@@ -19,7 +19,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Kinvo Easy Inventory"
+        android:text="Easy Inventory"
         android:textSize="20sp"
         android:textStyle="bold"
         android:textColor="@color/black"

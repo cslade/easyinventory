@@ -32,6 +32,18 @@
             android:textSize="16sp"
             android:textColor="@color/black"/>
 
+        <!-- ✅ Stock Update Message -->
+        <TextView
+            android:id="@+id/tvStockUpdatedMessage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Stock Updated!"
+            android:textSize="14sp"
+            android:textColor="@color/green"
+            android:visibility="gone"
+            android:layout_marginTop="8dp"/>
+
+
 
         <!-- ✅ Update Stock Button -->
         <Button
@@ -41,17 +53,6 @@
             android:text="Update Stock"
             android:background="@drawable/button_background"
             android:textColor="@color/white"
-            android:layout_marginTop="8dp"/>
-
-        <!-- Change android:visibility="gone" to "visible" to check -->
-        <TextView
-            android:id="@+id/tvStockUpdatedMessage"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Stock Updated!"
-            android:textSize="14sp"
-            android:textColor="@color/green"
-            android:visibility="visible"
             android:layout_marginTop="8dp"/>
 
     </LinearLayout>

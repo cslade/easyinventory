@@ -3,7 +3,6 @@ package com.kinvo.easyinventory;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,7 +19,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.volley.NetworkResponse;
+
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
@@ -39,6 +38,7 @@ import java.util.Map;
 
 public class ProductSearchActivity extends AppCompatActivity {
     private static final String TAG = "ProductSearchActivity";
+    private static final String PREFS_NAME = "MyAppPrefs";
 
     private EditText etBarcode;
     private Button btnSearchProduct;
@@ -55,51 +55,149 @@ public class ProductSearchActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_product_search);
 
-        // ✅ Setup Toolbar
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle("Product Search");
-        }
+        initializeToolbar();
+        initializeUI();
+        retrievePreferences();
+        setupRecyclerView();
+        setupSearchButton();
+    }
 
-        // ✅ Initialize UI Elements
+    private void initializeToolbar() {
+        Toolbar toolbar = findViewById(R.id.pd_toolbar);
+        setSupportActionBar(toolbar);
+
+    }
+
+    private void initializeUI() {
         etBarcode = findViewById(R.id.etBarcode);
         btnSearchProduct = findViewById(R.id.btnSearchProduct);
         progressBar = findViewById(R.id.progressBar);
         recyclerView = findViewById(R.id.recyclerView);
+    }
 
-        // ✅ Retrieve Authentication Token & Location ID
-        SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+    private void retrievePreferences() {
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         authToken = prefs.getString("authToken", "");
-        String storedLocationId = prefs.getString("locationId", "0");
-        try {
-            locationId = Integer.parseInt(storedLocationId);
-        } catch (NumberFormatException e) {
-            Log.e("ProductSearchActivity", "❌ Error parsing locationId: " + storedLocationId, e);
-            locationId = 0; // Default to 0 if parsing fails
-        }
+        locationId = parseLocationId(prefs.getString("locationId", "0"));
 
-        Log.d(TAG, "Retrieved Auth Token: " + authToken);
-        Log.d(TAG, "Retrieved Location ID: " + locationId);
+        Log.d(TAG, "✅ Retrieved Auth Token: " + authToken);
+        Log.d(TAG, "✅ Retrieved Location ID: " + locationId);
 
         if (authToken.isEmpty()) {
-            Log.e(TAG, "❌ No Auth Token Found!");
-            Toast.makeText(this, "Authentication error. Please log in again.", Toast.LENGTH_LONG).show();
-            return;
+            handleAuthenticationError();
         }
+    }
 
-        // ✅ RecyclerView Setup
+    private int parseLocationId(String storedLocationId) {
+        try {
+            return Integer.parseInt(storedLocationId);
+        } catch (NumberFormatException e) {
+            Log.e(TAG, "❌ Error parsing locationId: " + storedLocationId, e);
+            return 0;
+        }
+    }
+
+    private void handleAuthenticationError() {
+        Log.e(TAG, "❌ No Auth Token Found!");
+        showToast("Authentication error. Please log in again.");
+        finish(); // Close activity if authentication fails
+    }
+
+    private void setupRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         productAdapter = new ProductAdapter(this, productList, authToken, locationId);
         recyclerView.setAdapter(productAdapter);
+    }
 
-        // ✅ Search Product Button Click Listener
+    private void setupSearchButton() {
         btnSearchProduct.setOnClickListener(v -> fetchProductByBarcode());
     }
 
+    // ✅ Fetch Products
+    private void fetchProductByBarcode() {
+        String barcode = etBarcode.getText().toString().trim();
+        showProgressBar();
+
+        String url = "https://api.eposnowhq.com/api/v4/Inventory/stocks?LocationID=" + locationId;
+        if (!barcode.isEmpty()) {
+            url += "&Search=" + barcode;
+        }
+
+        Log.d(TAG, "🔍 Fetching product from URL: " + url);
+
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
+                response -> {
+                    hideProgressBar();
+                    Log.d(TAG, "✅ Response: " + response.toString());
+                    handleProductResponse(response);
+                },
+                error -> {
+                    hideProgressBar();
+                    handleRequestError(error);
+                }) {
+            @Override
+            public Map<String, String> getHeaders() {
+                return getRequestHeaders();
+            }
+        };
+
+        RequestQueue queue = Volley.newRequestQueue(this);
+        queue.add(request);
+    }
+
+    // ✅ Handle API Response
+    private void handleProductResponse(JSONObject response) {
+        try {
+            JSONArray dataArray = response.getJSONArray("Data");
+            productList.clear();
+
+            if (dataArray.length() > 0) {
+                for (int i = 0; i < dataArray.length(); i++) {
+                    JSONObject productObject = dataArray.getJSONObject(i);
+                    int productId = productObject.getInt("ProductId");
+                    String productName = productObject.getString("ProductName");
+                    int currentStock = productObject.getInt("CurrentStock");
+
+                    Product product = new Product(productId, productName, currentStock);
+                    productList.add(product);
+                    Log.d(TAG, "✅ Added Product: " + product);
+                }
+                productAdapter.notifyDataSetChanged();
+            } else {
+                showToast("No products found.");
+            }
+        } catch (JSONException e) {
+            Log.e(TAG, "❌ JSON Parsing Error: " + e.getMessage());
+            showToast("Error parsing product data.");
+        }
+    }
+
+    // ✅ Handle API Errors
+    private void handleRequestError(com.android.volley.VolleyError error) {
+        Log.e(TAG, "❌ Request Failed: " + error.toString());
+
+        if (error.networkResponse != null) {
+            int statusCode = error.networkResponse.statusCode;
+            Log.e(TAG, "❌ Status Code: " + statusCode);
+            switch (statusCode) {
+                case 401:
+                    showToast("Unauthorized! Please reauthenticate.");
+                    break;
+                case 404:
+                    showToast("Product not found. Try another barcode.");
+                    break;
+                default:
+                    showToast("Error: " + statusCode);
+            }
+        } else {
+            showToast("No response from server. Check your internet.");
+        }
+    }
+
+    // ✅ Logout User
     private void logoutUser() {
-        SharedPreferences.Editor editor = getSharedPreferences("MyAppPrefs", MODE_PRIVATE).edit();
-        editor.clear(); // ✅ Clears saved authentication data
+        SharedPreferences.Editor editor = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();
+        editor.clear();
         editor.apply();
 
         Intent intent = new Intent(this, MembershipLoginActivity.class);
@@ -108,8 +206,7 @@ public class ProductSearchActivity extends AppCompatActivity {
         finish();
     }
 
-
-    // ✅ Create the Options Menu (Settings)
+    // ✅ Create Options Menu
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -119,111 +216,39 @@ public class ProductSearchActivity extends AppCompatActivity {
 
     // ✅ Handle Menu Clicks
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_user_agreement) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_user_agreement) {
             startActivity(new Intent(this, UserAgreementActivity.class));
-            return true;
-        } else if (item.getItemId() == R.id.action_settings) {
+        } else if (id == R.id.action_settings) {
             startActivity(new Intent(this, SettingsActivity.class));
-            return true;
-        } else if (item.getItemId() == R.id.action_privacy_policy) {
+        } else if (id == R.id.action_privacy_policy) {
             startActivity(new Intent(this, PrivacyPolicyActivity.class));
-            return true;
-        } else if (item.getItemId() == R.id.action_logout) {
+        } else if (id == R.id.action_logout) {
             logoutUser();
-            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
+        return true;
     }
 
-    // ✅ Fetch Product by Barcode
-    private void fetchProductByBarcode() {
-        String barcode = etBarcode.getText().toString().trim();
+    // ✅ Helper Methods
+    private void showProgressBar() {
+        if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
+    }
 
-        if (progressBar != null) {
-            progressBar.setVisibility(View.VISIBLE);
-        }
+    private void hideProgressBar() {
+        if (progressBar != null) progressBar.setVisibility(View.GONE);
+    }
 
-        String url = "https://api.eposnowhq.com/api/v4/Inventory/stocks?LocationID=" + locationId;
-        if (!barcode.isEmpty()) {
-            url += "&Search=" + barcode;
-        }
+    private void showToast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
 
-        Log.d(TAG, "Fetching product from URL: " + url);
-
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
-                response -> {
-                    if (progressBar != null) {
-                        progressBar.setVisibility(View.GONE);
-                    }
-
-                    Log.d(TAG, "Response: " + response.toString());
-
-                    try {
-                        JSONArray dataArray = response.getJSONArray("Data");
-                        productList.clear();
-
-                        if (dataArray.length() > 0) {
-                            for (int i = 0; i < dataArray.length(); i++) {
-                                JSONObject productObject = dataArray.getJSONObject(i);
-                                int productId = productObject.getInt("ProductId");
-                                String productName = productObject.getString("ProductName");
-                                int currentStock = productObject.getInt("CurrentStock");
-
-                                productList.add(new Product(productId, productName, currentStock));
-                                Log.d(TAG, "Added Product ID: " + productId + " Name: " + productName);
-                            }
-                            productAdapter.notifyDataSetChanged();
-                        } else {
-                            Toast.makeText(this, "No products found.", Toast.LENGTH_SHORT).show();
-                        }
-                    } catch (JSONException e) {
-                        Log.e(TAG, "JSON Parsing Error: " + e.getMessage());
-                        Toast.makeText(this, "Error parsing product data.", Toast.LENGTH_SHORT).show();
-                    }
-                },
-                error -> {
-                    if (progressBar != null) {
-                        progressBar.setVisibility(View.GONE);
-                    }
-
-                    Log.e(TAG, "Request Failed: " + error.toString());
-
-                    if (error.networkResponse != null) {
-                        int statusCode = error.networkResponse.statusCode;
-                        Log.e(TAG, "Status Code: " + statusCode);
-
-                        if (statusCode == 401) {
-                            Toast.makeText(this, "Unauthorized! Please reauthenticate.", Toast.LENGTH_LONG).show();
-                        } else if (statusCode == 404) {
-                            Toast.makeText(this, "Product not found. Try another barcode.", Toast.LENGTH_LONG).show();
-                        } else {
-                            Toast.makeText(this, "Error: " + statusCode, Toast.LENGTH_LONG).show();
-                        }
-                    } else {
-                        Toast.makeText(this, "No response from server. Check your internet.", Toast.LENGTH_LONG).show();
-                    }
-                }) {
-            @Override
-            public Map<String, String> getHeaders() {
-                Map<String, String> headers = new HashMap<>();
-                SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
-                String authToken = prefs.getString("authToken", "");
-
-                if (authToken.isEmpty()) {
-                    Log.e(TAG, "❌ No Auth Token Found!");
-                } else {
-                    Log.d(TAG, "✅ Sending Auth Token: " + authToken);
-                }
-
-                headers.put("Authorization", "Basic " + authToken);
-                headers.put("Content-Type", "application/json");
-
-                return headers;
-            }
-        };
-
-        RequestQueue queue = Volley.newRequestQueue(this);
-        queue.add(request);
+    private Map<String, String> getRequestHeaders() {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", "Basic " + authToken);
+        headers.put("Content-Type", "application/json");
+        return headers;
     }
 }

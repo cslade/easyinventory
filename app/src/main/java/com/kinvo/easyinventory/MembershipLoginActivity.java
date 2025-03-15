@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 public class MembershipLoginActivity extends AppCompatActivity {
 
     private EditText etEmail, etPassword;
+    private Button btnLogin;
     private CheckBox checkboxRememberMe;
     private ProgressBar progressBar;
     private SharedPreferences sharedPreferences;

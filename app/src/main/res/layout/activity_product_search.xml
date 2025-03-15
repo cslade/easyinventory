@@ -9,13 +9,14 @@
 
     <!-- ✅ Toolbar with Ellipsis Menu -->
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
+        android:id="@+id/pd_toolbar"
+        android:layout_width="372dp"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.DayNight"
         app:title="Inventory Update"
-        app:titleTextColor="@android:color/white"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.DayNight"/>
+        app:titleMarginStart="100dp"
+        app:titleTextColor="@android:color/white" />
 
     <!-- ✅ Search Bar & Search Button -->
     <LinearLayout
@@ -30,6 +31,7 @@
             android:layout_weight="1"
             android:layout_height="50dp"
             android:hint="Enter Barcode (Optional)"
+            android:textColorHint="#546E7A"
             android:textSize="16sp"
             android:textColor="@color/black"
             android:padding="12dp"

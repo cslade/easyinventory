@@ -21,12 +21,7 @@ public class SplashActivity extends AppCompatActivity {
         // ✅ No need for setContentView() if using new Material Splash Screen API
 
         // ✅ Define navigation logic as a Runnable
-        Runnable navigationRunnable = new Runnable() {
-            @Override
-            public void run() {
-                navigateToNextScreen();
-            }
-        };
+        Runnable navigationRunnable = this::navigateToNextScreen;
 
         // ✅ Execute the navigation after SPLASH_DELAY
         new Handler(Looper.getMainLooper()).postDelayed(navigationRunnable, SPLASH_DELAY);

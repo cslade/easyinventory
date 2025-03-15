@@ -16,4 +16,9 @@
     <string name="product_name">Product Name</string>
     <string name="stock">Stock:</string>
     <string name="privacy_policy_title">Privacy Policy</string>
+    <string name="update_stock_title">Update Stock for %1$s</string>
+    <string name="stock_input_hint">Enter Product Quantity</string>
+    <string name="update_button_text">Update</string>
+    <string name="cancel_button_text">Cancel</string>
+    <string name="invalid_stock_quantity_message">Please enter a valid stock quantity!</string>
 </resources>

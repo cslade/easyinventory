@@ -2,12 +2,14 @@ package com.kinvo.easyinventory;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -18,6 +20,7 @@ public class MembershipLoginActivity extends AppCompatActivity {
     private CheckBox checkboxRememberMe;
     private ProgressBar progressBar;
     private SharedPreferences sharedPreferences;
+
     private static final String PREFS_NAME = "UserPrefs";
     private static final String KEY_EMAIL = "email";
     private static final String KEY_PASSWORD = "password";
@@ -31,14 +34,39 @@ public class MembershipLoginActivity extends AppCompatActivity {
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
         checkboxRememberMe = findViewById(R.id.checkboxRememberMe);
-        Button btnLogin = findViewById(R.id.btnLogin);
+        btnLogin = findViewById(R.id.btnLogin);
         progressBar = findViewById(R.id.progressBar);
         sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+
+        TextView tvSignUp = findViewById(R.id.tvSignUp);
+        TextView tvForgotPassword = findViewById(R.id.tvForgotPassword);
+        TextView tvTermsOfService = findViewById(R.id.tvTermsOfService);
 
         // Load saved credentials if Remember Me was checked
         loadSavedCredentials();
 
         btnLogin.setOnClickListener(view -> authenticateUser());
+
+        tvSignUp.setOnClickListener(view -> {
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.easyinventory.io/signup"));
+            startActivity(browserIntent);
+        });
+
+        tvForgotPassword.setOnClickListener(view -> {
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.easyinventory.io/forgot-password"));
+            startActivity(browserIntent);
+        });
+
+        tvTermsOfService.setOnClickListener(view -> {
+            Intent intent = new Intent(MembershipLoginActivity.this, TermsOfServiceActivity.class);
+            startActivity(intent);
+        });
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        getOnBackPressedDispatcher().onBackPressed(); // modern back navigation
+        return true;
     }
 
     private void authenticateUser() {
@@ -52,10 +80,9 @@ public class MembershipLoginActivity extends AppCompatActivity {
 
         progressBar.setVisibility(View.VISIBLE);
 
-        // Simulate authentication
         new android.os.Handler().postDelayed(() -> {
             progressBar.setVisibility(View.GONE);
-            if (email.equals("test@easyinventory.com") && password.equals("password123")) {
+            if (email.equals("test@easyinventory.io") && password.equals("password123")) {
                 saveCredentials(email, password, checkboxRememberMe.isChecked());
                 navigateToLoginActivity();
             } else {
@@ -93,4 +120,3 @@ public class MembershipLoginActivity extends AppCompatActivity {
         finish();
     }
 }
-

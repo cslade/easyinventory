@@ -26,23 +26,30 @@
         <!-- ✅ Settings Screen -->
         <activity android:name=".SettingsActivity"
             android:theme="@style/Theme.EasyInventory"/>
-        <activity android:name=".AboutActivity" />
+        <activity android:name=".UserAgreementActivity"
+            android:theme="@style/Theme.EasyInventory"/>
+        <activity android:name=".PrivacyPolicyActivity"
+            android:theme="@style/Theme.EasyInventory"/>
+        <activity android:name=".AboutActivity"
+            android:theme="@style/Theme.EasyInventory"/>
 
 
 
         <!-- ✅ Login Screen -->
         <activity android:name=".MembershipLoginActivity"
             android:theme="@style/Theme.EasyInventory"/>
-
+        <activity android:name=".SignUpActivity"
+            android:theme="@style/Theme.EasyInventory"/>
+        <activity android:name=".ForgotPasswordActivity"
+            android:theme="@style/Theme.EasyInventory"/>
+        <activity android:name=".TermsOfServiceActivity"
+            android:theme="@style/Theme.EasyInventory"/>
         <activity android:name=".LoginActivity"
             android:theme="@style/Theme.EasyInventory"/>
 
         <!-- ✅ Product Search Screen -->
         <activity android:name=".ProductSearchActivity"
             android:theme="@style/Theme.EasyInventory"/>
-        <activity android:name=".UserAgreementActivity"
-            android:theme="@style/Theme.EasyInventory"/>
-        <activity android:name=".PrivacyPolicyActivity" />
         <activity android:name=".WebViewActivity"
             android:theme="@style/Theme.EasyInventory"/>
 
@@ -52,8 +59,8 @@
             android:theme="@style/Theme.EasyInventory"/>
 
 
-
         <!-- ✅ Other Activities (If Any) -->
+
         <activity android:name=".SomeOtherActivity" />
 
     </application>

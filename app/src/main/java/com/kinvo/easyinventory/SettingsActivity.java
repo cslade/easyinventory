@@ -4,10 +4,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
-import android.view.Menu;
-import android.view.MenuItem;
+
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -36,7 +36,6 @@ public class SettingsActivity extends AppCompatActivity {
             getSupportActionBar().setTitle("Settings");
         }
 
-
         // Initialize UI
         SwitchCompat switchTheme = findViewById(R.id.switchTheme);
         appPrefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
@@ -48,26 +47,33 @@ public class SettingsActivity extends AppCompatActivity {
         // Listen for theme switch toggle
         switchTheme.setOnCheckedChangeListener(this::onThemeToggle);
 
-        // User Agreement Button
-        findViewById(R.id.tvUserAgreement).setOnClickListener(v ->
-                startActivity(new Intent(SettingsActivity.this, UserAgreementActivity.class))
-        );
+        // Link to views
+        TextView tvUserAgreement = findViewById(R.id.tvUserAgreement);
+        TextView tvPrivacyPolicy = findViewById(R.id.tvPrivacyPolicy);
+        TextView tvAbout = findViewById(R.id.tvAbout);
 
-        // Privacy Policy Button
-        findViewById(R.id.tvPrivacyPolicy).setOnClickListener(v ->
-                startActivity(new Intent(SettingsActivity.this, PrivacyPolicyActivity.class))
-        );
+        // User Agreement
+        tvUserAgreement.setOnClickListener(v -> {
+            startActivity(new Intent(SettingsActivity.this, UserAgreementActivity.class));
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        });
 
-        // About Button
-        findViewById(R.id.tvAbout).setOnClickListener(v ->
-                startActivity(new Intent(SettingsActivity.this, AboutActivity.class))
-        );
+        // Privacy Policy
+        tvPrivacyPolicy.setOnClickListener(v -> {
+            startActivity(new Intent(SettingsActivity.this, PrivacyPolicyActivity.class));
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        });
+
+        // About
+        tvAbout.setOnClickListener(v -> {
+            startActivity(new Intent(SettingsActivity.this, AboutActivity.class));
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        });
 
         // Logout Button
         Button btnLogout = findViewById(R.id.btnLogout);
         btnLogout.setOnClickListener(v -> logoutUser());
     }
-
 
     // Handle Theme Toggle
     private void onThemeToggle(CompoundButton buttonView, boolean isChecked) {
@@ -98,17 +104,15 @@ public class SettingsActivity extends AppCompatActivity {
 
     // Logout User and Redirect to Membership Login
     private void logoutUser() {
-        // Clear stored authentication data
         SharedPreferences.Editor editor = getSharedPreferences("MyAppPrefs", MODE_PRIVATE).edit();
         editor.remove("authToken");
         editor.remove("locationId");
         editor.apply();
 
-        // Redirect to Membership Login
         Intent intent = new Intent(SettingsActivity.this, MembershipLoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
-        finish(); // Close settings activity
+        finish();
     }
 
     @Override

@@ -27,7 +27,7 @@
         android:textSize="20sp"
         android:textStyle="bold"
         android:fontFamily="@font/trade_winds"
-        android:textColor="@color/black"
+        android:textColor="@color/purple_700"
         android:layout_marginBottom="20dp"/>
 
     <!-- Progress Bar (Initially Hidden) -->

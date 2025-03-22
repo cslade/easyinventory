@@ -6,7 +6,7 @@ import android.webkit.WebViewClient;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-public class PrivacyPolicyActivity extends AppCompatActivity {
+public class TermsOfServiceActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -16,12 +16,12 @@ public class PrivacyPolicyActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle("Privacy Policy");
+            getSupportActionBar().setTitle("Terms of Service");
         }
 
         WebView webView = findViewById(R.id.webView);
         webView.setWebViewClient(new WebViewClient());
-        webView.loadUrl("file:///android_asset/privacy_policy.html");
+        webView.loadUrl("file:///android_asset/terms_of_service.html");
     }
 
     @Override
@@ -30,5 +30,4 @@ public class PrivacyPolicyActivity extends AppCompatActivity {
         return true;
     }
 }
-
 

@@ -48,12 +48,12 @@ public class MembershipLoginActivity extends AppCompatActivity {
         btnLogin.setOnClickListener(view -> authenticateUser());
 
         tvSignUp.setOnClickListener(view -> {
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.easyinventory.io/signup"));
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.easyinventory.io/login"));
             startActivity(browserIntent);
         });
 
         tvForgotPassword.setOnClickListener(view -> {
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.easyinventory.io/forgot-password"));
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.easyinventory.io/login"));
             startActivity(browserIntent);
         });
 

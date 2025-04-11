@@ -13,4 +13,11 @@
         <item name="colorOnSurface">@color/onSurface</item>
         <item name="android:textColor">@color/textPrimary</item>
     </style>
+
+    <style name="Toolbar_TitleText" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
 </resources>

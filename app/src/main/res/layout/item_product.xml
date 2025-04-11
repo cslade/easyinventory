@@ -1,61 +1,51 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="4dp"
-    android:layout_margin="8dp">
+    android:orientation="vertical"
+    android:padding="8dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/tvProductName"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="12dp">
+        android:text="Product Name"
+        android:textSize="18sp"
+        android:textStyle="bold" />
 
-        <!-- ✅ Product Name -->
-        <TextView
-            android:id="@+id/tvProductName"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Product Name"
-            android:textSize="18sp"
-            android:textStyle="bold"/>
+    <TextView
+        android:id="@+id/tvCurrentStock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Current Stock: 0"
+        android:textSize="16sp" />
 
-        <!-- ✅ Current Stock -->
-        <TextView
-            android:id="@+id/tvCurrentStock"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Stock: 0"
-            android:textSize="16sp"
-            android:textColor="@color/black"/>
+    <TextView
+        android:id="@+id/tvTotalCost"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Total Cost: $0.00"
+        android:textSize="16sp" />
 
-        <!-- ✅ Stock Update Message -->
-        <TextView
-            android:id="@+id/tvStockUpdatedMessage"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Stock Updated!"
-            android:textSize="14sp"
-            android:textColor="@color/green"
-            android:visibility="gone"
-            android:layout_marginTop="8dp"/>
+    <!-- TextView for Update Message -->
+    <TextView
+        android:id="@+id/tvStockUpdatedMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:text="Stock Updated!"
+        android:textColor="@color/purple_500"
+        android:textSize="14sp" />
+
+    <Button
+        android:id="@+id/btnUpdateStock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Update Stock" />
 
 
 
-        <!-- ✅ Update Stock Button -->
-        <Button
-            android:id="@+id/btnUpdateStock"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Update Stock"
-            android:background="@drawable/button_background"
-            android:textColor="@color/white"
-            android:layout_marginTop="8dp"/>
 
-    </LinearLayout>
+</LinearLayout>
 
-</androidx.cardview.widget.CardView>
 

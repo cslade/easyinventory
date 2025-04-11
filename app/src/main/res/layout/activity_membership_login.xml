@@ -1,97 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout android:layout_width="match_parent"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    android:padding="16dp">
 
     <LinearLayout
+        android:id="@+id/mainLayout"
         android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp"
-    android:gravity="center">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="16dp">
 
-    <!-- ✅ App Logo -->
-    <ImageView
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:contentDescription="The Easy Inventory Logo"
-        android:src="@drawable/logo"
-        android:layout_marginBottom="16dp"/>
+        <!-- ✅ App Logo -->
+        <ImageView
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:contentDescription="The Easy Inventory Logo"
+            android:src="@drawable/logo"
+            android:layout_marginBottom="16dp"/>
 
-    <!-- ✅ Title -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Easy Inventory"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:fontFamily="@font/trade_winds"
-        android:textColor="@color/purple_700"
-        android:layout_marginBottom="20dp"/>
-
-    <!-- Progress Bar (Initially Hidden) -->
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        style="?android:attr/progressBarStyleLarge"/>
-
-    <!-- Email Input -->
-        <EditText
-            android:id="@+id/etEmail"
-            android:layout_width="match_parent"
+        <!-- ✅ Title -->
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:hint="Email"
-            android:inputType="textEmailAddress"
-            android:minHeight="48dp"
-            android:textColorHint="#546E7A" />
-
-    <!-- Password Input -->
-    <EditText
-        android:id="@+id/etPassword"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Password"
-        android:inputType="textPassword"
-        android:minHeight="48dp"
-        android:textColorHint="#546E7A"/>
-
-    <CheckBox
-        android:id="@+id/checkboxRememberMe"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Remember Me"
-        android:padding="4dp"/>
+            android:text="Easy Inventory"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/trade_winds"
+            android:textColor="@color/purple_700"
+            android:layout_marginBottom="20dp"/>
 
 
-        <!-- Login Button -->
-    <Button
-        android:id="@+id/btnLogin"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/button_background"
-        android:textColor="@color/white"
-        android:text="Sign in"/>
+        <!-- Progress Bar -->
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:layout_marginBottom="20dp" />
 
-    <!-- Horizontal Layout for Sign Up and Forgot Password -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp">
+        <!-- Sign In Button -->
+        <Button
+            android:id="@+id/btnLogin"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="Sign In"
+            android:backgroundTint="@color/purple_500"
+            android:textColor="@android:color/white"
+            android:layout_marginBottom="20dp" />
 
-        <!-- Left-aligned "Sign Up" -->
+        <!-- Sign Up TextView -->
         <TextView
             android:id="@+id/tvSignUp"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:clickable="true"
             android:focusable="true"
-            android:gravity="start"
+            android:gravity="center"
             android:minHeight="48dp"
             android:padding="8dp"
             android:text="Don't have an account? Sign up"
@@ -99,46 +65,8 @@
             android:textSize="14sp"
             android:textStyle="bold" />
 
-        <!-- Right-aligned "Forgot Password?" -->
-        <TextView
-            android:id="@+id/tvForgotPassword"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:focusable="true"
-            android:gravity="end"
-            android:minHeight="48dp"
-            android:padding="8dp"
-            android:text="Forgot Password?"
-            android:textColor="#0091EA"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-
-    </LinearLayout>
-    <!-- ✅ End of Horizontal Layout -->
-
-    <WebView
-        android:id="@+id/webViewSignUp"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone" />
-
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/tvTermsOfService"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="20dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:minHeight="48dp"
-        android:text="Terms of Service"
-        android:textColor="#0091EA"
-        android:textSize="14sp"
-        android:textStyle="bold" />
 </RelativeLayout>
 
 

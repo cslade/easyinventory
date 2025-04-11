@@ -3,16 +3,20 @@ package com.kinvo.easyinventory.model;
 public class Product {
     private int productId;
     private String productName;
-    private int currentStock;
+    private double currentStock;
+    private double totalCost;
     private boolean stockUpdatedMessageVisible; // ✅ New property
 
-    public Product(int productId, String productName, int currentStock) {
+    // Simplified constructor
+    public Product(int productId, String productName, double currentStock, double totalCost) {
         this.productId = productId;
         this.productName = productName;
         this.currentStock = currentStock;
+        this.totalCost = totalCost;
         this.stockUpdatedMessageVisible = false; // Default hidden
     }
 
+    // Getters
     public int getProductId() {
         return productId;
     }
@@ -21,13 +25,23 @@ public class Product {
         return productName;
     }
 
-    public int getCurrentStock() {
+    public double getCurrentStock() {
         return currentStock;
     }
 
-    public void setCurrentStock(int currentStock) {
+    public double getTotalCost() {
+        return totalCost;
+    }
+
+    // Setters
+    public void setCurrentStock(double currentStock) {
         this.currentStock = currentStock;
     }
+
+    public void setTotalCost(double totalCost) {
+        this.totalCost = totalCost;
+    }
+
 
     public boolean isStockUpdatedMessageVisible() {
         return stockUpdatedMessageVisible;
@@ -37,6 +51,7 @@ public class Product {
         this.stockUpdatedMessageVisible = visible;
     }
 }
+
 
 
 

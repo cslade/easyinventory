@@ -29,6 +29,13 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        // Show membership type (if coming from WebView login)
+        SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
+        String membershipType = prefs.getString("membershipType", null);
+        if (membershipType != null) {
+            Toast.makeText(this, "Welcome " + membershipType + " member!", Toast.LENGTH_LONG).show();
+        }
+
 
         // ✅ Initialize UI Elements
         etApiKey = findViewById(R.id.etApiKey);

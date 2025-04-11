@@ -21,14 +21,6 @@ public class WebViewActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_webview);
 
-        // ✅ Setup Toolbar with Back Button
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle("Terms of Service");
-        }
-
         // ✅ Initialize WebView
         webView = findViewById(R.id.webView);
         configureWebSettings(webView.getSettings());

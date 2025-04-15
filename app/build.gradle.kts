@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.kinvo.easyinventory"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.kinvo.easyinventory"
@@ -44,6 +44,7 @@ dependencies {
     implementation(libs.volley)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.browser)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

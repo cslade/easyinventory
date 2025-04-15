@@ -8,8 +8,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.browser.customtabs.CustomTabsIntent;
 
 public class MembershipLoginActivity extends AppCompatActivity {
 
@@ -39,16 +40,24 @@ public class MembershipLoginActivity extends AppCompatActivity {
     private void authenticateUser() {
         progressBar.setVisibility(View.VISIBLE);
 
-        // Launch the WebView for authentication
-        Intent intent = new Intent(MembershipLoginActivity.this, WebViewLoginActivity.class);
-        startActivity(intent);
+        String loginUrl = "https://www.easyinventory.io/login";  // your Memberstack login page
+
+        CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+        CustomTabsIntent customTabsIntent = builder.build();
+
+        customTabsIntent.intent.setPackage("com.android.chrome");
+        customTabsIntent.intent.putExtra("android.support.customtabs.extra.EXTRA_ENABLE_URLBAR_HIDING", true);
+        customTabsIntent.intent.putExtra("android.support.customtabs.extra.EXTRA_TITLE_VISIBILITY_STATE", 1);
+        customTabsIntent.launchUrl(this, Uri.parse(loginUrl));
+
+        // ✅ After login attempt, open WebViewLoginActivity to detect success
+        new android.os.Handler().postDelayed(() -> {
+            startActivity(new Intent(this, WebViewLoginActivity.class));
+            finish();
+        }, 10000);
+
         progressBar.setVisibility(View.GONE);
     }
 
-    @Override
-    public boolean onSupportNavigateUp() {
-        finish();
-        return true;
-    }
 }
 

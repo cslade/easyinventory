@@ -39,14 +39,26 @@
             android:theme="@style/Theme.EasyInventory"/>
         <activity android:name=".SignUpActivity"
             android:theme="@style/Theme.EasyInventory"/>
-        <activity android:name=".ForgotPasswordActivity"
-            android:theme="@style/Theme.EasyInventory"/>
         <activity android:name=".TermsOfServiceActivity"
             android:theme="@style/Theme.EasyInventory"/>
         <activity android:name=".LoginActivity"
             android:theme="@style/Theme.EasyInventory"/>
         <activity android:name=".WebViewLoginActivity"
-            android:theme="@style/Theme.EasyInventory"/>
+            android:exported="true"
+            android:theme="@style/Theme.EasyInventory">
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" />
+                <data android:host="www.easyinventory.io" />
+                <data android:pathPrefix="/basic/account" />
+                <data android:scheme="https" />
+                <data android:host="www.easyinventory.io" />
+                <data android:pathPrefix="/premium/account" />
+            </intent-filter>
+        </activity>
+
 
 
         <!-- ✅ Product Search Screen -->
@@ -54,6 +66,8 @@
             android:theme="@style/Theme.EasyInventory"/>
         <activity android:name=".WebViewActivity"
             android:theme="@style/Theme.EasyInventory"/>
+
+
 
 
 

@@ -4,92 +4,55 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.webkit.CookieManager;
-import android.webkit.JavascriptInterface;
-import android.webkit.WebResourceRequest;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.Toast;
-import androidx.appcompat.widget.Toolbar;
+import android.util.Log;
 
-
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.browser.customtabs.CustomTabsIntent;
 
 public class WebViewLoginActivity extends AppCompatActivity {
 
-    private WebView webView;
     private static final String BASIC_URL = "https://www.easyinventory.io/basic/account";
     private static final String PREMIUM_URL = "https://www.easyinventory.io/premium/account";
     private static final String LOGIN_URL = "https://www.easyinventory.io/login";
-    private static final String MEMBERSTACK_CALLBACK = "https://client.memberstack.com/auth/callback?code=";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_webview);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle("Sign In");
+        // Launch login in Chrome Custom Tabs
+        CustomTabsIntent customTabsIntent = new CustomTabsIntent.Builder().build();
+        customTabsIntent.launchUrl(this, Uri.parse(LOGIN_URL));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d("WebViewLogin", "onResume triggered");
+        Uri data = getIntent().getData();
+        if (data != null) {
+            String url = data.toString();
+            Log.d("WebViewLogin", "Intent data: " + url);
+            if (url.contains("basic/account")) {
+                saveMembershipType("Basic");
+                proceedToLoginActivity();
+            } else if (url.contains("premium/account")) {
+                saveMembershipType("Premium");
+                proceedToLoginActivity();
+            } else if (url.contains("account") || url.contains("callback")) {
+                Toast.makeText(this, "Redirected from login", Toast.LENGTH_SHORT).show();
+                saveMembershipType("Authenticated");
+                proceedToLoginActivity();
+            }
         }
+    }
 
-
-        webView = findViewById(R.id.webView);
-        WebSettings webSettings = webView.getSettings();
-        webSettings.setJavaScriptEnabled(true);
-        webSettings.setDomStorageEnabled(true);
-        webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
-
-        // Enable third-party cookies for Facebook and Google login
-        CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true);
-
-        // Adding JavaScript Interface for Communication
-        webView.addJavascriptInterface(new WebAppInterface(), "AndroidInterface");
-
-        webView.setWebViewClient(new WebViewClient() {
-
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                String url = request.getUrl().toString();
-
-                if (url.contains(MEMBERSTACK_CALLBACK)) {
-                    saveMembershipType("Authenticated");
-                    proceedToLoginActivity();
-                    return true;
-                }
-
-                if (url.contains(BASIC_URL)) {
-                    saveMembershipType("Basic");
-                    proceedToLoginActivity();
-                    return true;
-                }
-
-                if (url.contains(PREMIUM_URL)) {
-                    saveMembershipType("Premium");
-                    proceedToLoginActivity();
-                    return true;
-                }
-
-                return false;
-            }
-
-
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                view.loadUrl("javascript:(function() { " +
-                        "if(window.location.href.includes('auth/callback?code=')) { " +
-                        "    AndroidInterface.onLoginSuccess(window.location.href); " +
-                        "} " +
-                        "})();");
-            }
-        });
-
-        webView.loadUrl(LOGIN_URL);
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent); // Allow onResume to pick up the updated intent
     }
 
     private void saveMembershipType(String membershipType) {
@@ -104,14 +67,8 @@ public class WebViewLoginActivity extends AppCompatActivity {
         startActivity(intent);
         finish();
     }
-
-    public class WebAppInterface {
-        @JavascriptInterface
-        public void onLoginSuccess(String url) {
-            if (url.contains("auth/callback?code=")) {
-                saveMembershipType("Authenticated");
-            }
-            proceedToLoginActivity();
-        }
-    }
 }
+
+
+
+

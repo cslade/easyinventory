@@ -40,24 +40,14 @@ public class MembershipLoginActivity extends AppCompatActivity {
     private void authenticateUser() {
         progressBar.setVisibility(View.VISIBLE);
 
-        String loginUrl = "https://www.easyinventory.io/login";  // your Memberstack login page
+        // Directly open WebViewLoginActivity instead of Chrome Custom Tabs
+        Intent intent = new Intent(this, WebViewLoginActivity.class);
+        startActivity(intent);
 
-        CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
-        CustomTabsIntent customTabsIntent = builder.build();
-
-        customTabsIntent.intent.setPackage("com.android.chrome");
-        customTabsIntent.intent.putExtra("android.support.customtabs.extra.EXTRA_ENABLE_URLBAR_HIDING", true);
-        customTabsIntent.intent.putExtra("android.support.customtabs.extra.EXTRA_TITLE_VISIBILITY_STATE", 1);
-        customTabsIntent.launchUrl(this, Uri.parse(loginUrl));
-
-        // ✅ After login attempt, open WebViewLoginActivity to detect success
-        new android.os.Handler().postDelayed(() -> {
-            startActivity(new Intent(this, WebViewLoginActivity.class));
-            finish();
-        }, 10000);
-
-        progressBar.setVisibility(View.GONE);
     }
+
+
+
 
 }
 

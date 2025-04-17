@@ -2,84 +2,71 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.kinvo.easyinventory">
 
-    <!-- ✅ Internet permission for API calls -->
-    <uses-permission android:name="android.permission.INTERNET" />
-
     <application
         android:allowBackup="true"
+        android:label="Easy Inventory"
         android:icon="@mipmap/ic_launcher"
-        android:label="EasyInventory"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Material3.DynamicColors.DayNight.NoActionBar">
+        android:theme="@style/Theme.EasyInventory">
 
-
-        <!-- ✅ Splash Screen (First screen user sees) -->
         <activity android:name=".SplashActivity"
-            android:exported="true"
-            android:theme="@style/Theme.EasyInventory">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <!-- ✅ Settings Screen -->
-        <activity android:name=".SettingsActivity"
-            android:theme="@style/Theme.EasyInventory"/>
-        <activity android:name=".UserAgreementActivity"
-            android:theme="@style/Theme.EasyInventory"/>
-        <activity android:name=".PrivacyPolicyActivity"
-            android:theme="@style/Theme.EasyInventory"/>
-        <activity android:name=".AboutActivity"
-            android:theme="@style/Theme.EasyInventory"/>
 
+        <activity android:name=".LoginActivity" android:exported="true" />
+        <activity android:name=".MembershipLoginActivity" android:exported="true" />
+        <activity android:name=".ProductSearchActivity" android:exported="true" />
+        <activity android:name=".SettingsActivity" android:exported="true" />
+        <activity android:name=".PrivacyPolicyActivity" android:exported="true" />
+        <activity android:name=".UserAgreementActivity" android:exported="true" />
+        <activity android:name=".TermsOfServiceActivity" android:exported="true" />
+        <activity android:name=".AboutActivity" android:exported="true" />
 
-        <!-- ✅ Login Screen -->
-        <activity android:name=".MembershipLoginActivity"
-            android:theme="@style/Theme.EasyInventory"/>
-        <activity android:name=".SignUpActivity"
-            android:theme="@style/Theme.EasyInventory"/>
-        <activity android:name=".TermsOfServiceActivity"
-            android:theme="@style/Theme.EasyInventory"/>
-        <activity android:name=".LoginActivity"
-            android:theme="@style/Theme.EasyInventory"/>
-        <activity android:name=".WebViewLoginActivity"
+        <!-- ✅ WebViewLoginActivity handles redirects from Memberstack -->
+        <activity
+            android:name=".WebViewLoginActivity"
             android:exported="true"
             android:theme="@style/Theme.EasyInventory">
+
+            <!-- 🔁 Redirect from Basic Membership -->
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https" />
-                <data android:host="www.easyinventory.io" />
-                <data android:pathPrefix="/basic/account" />
-                <data android:scheme="https" />
-                <data android:host="www.easyinventory.io" />
-                <data android:pathPrefix="/premium/account" />
+                <data
+                    android:scheme="https"
+                    android:host="www.easyinventory.io"
+                    android:pathPrefix="/basic/account" />
+            </intent-filter>
+
+            <!-- 🔁 Redirect from Premium Membership -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="https"
+                    android:host="www.easyinventory.io"
+                    android:pathPrefix="/premium/account" />
+            </intent-filter>
+
+            <!-- 🔁 Optional generic callback handler -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="https"
+                    android:host="www.easyinventory.io"
+                    android:pathPrefix="/callback" />
             </intent-filter>
         </activity>
 
-
-
-        <!-- ✅ Product Search Screen -->
-        <activity android:name=".ProductSearchActivity"
-            android:theme="@style/Theme.EasyInventory"/>
-        <activity android:name=".WebViewActivity"
-            android:theme="@style/Theme.EasyInventory"/>
-
-
-
-
-
-        <!-- ✅ Main Activity -->
-        <activity android:name=".MainActivity"
-            android:theme="@style/Theme.EasyInventory"/>
-
-
-        <!-- ✅ Other Activities (If Any) -->
-
-        <activity android:name=".SomeOtherActivity" />
-
     </application>
-
 </manifest>
+

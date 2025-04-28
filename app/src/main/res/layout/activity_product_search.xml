@@ -7,7 +7,7 @@
     android:padding="16dp"
     android:background="@color/white">
 
-    <!-- ✅ Toolbar with Ellipsis Menu -->
+    <!-- ✅ Toolbar -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/pd_toolbar"
         android:layout_width="match_parent"
@@ -16,7 +16,7 @@
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
         app:title="Inventory Update" />
 
-    <!-- ✅ Search Bar & Search Button -->
+    <!-- ✅ Search Bar & Button -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -36,28 +36,26 @@
             android:textColorHint="#757575"
             android:textSize="16sp" />
 
-
         <Button
             android:id="@+id/btnSearch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Search"
-            android:layout_marginTop="8dp"
+            android:layout_marginStart="8dp"
             android:backgroundTint="@color/purple_500"
-            android:textColor="@android:color/white"/>
-
+            android:textColor="@android:color/white" />
     </LinearLayout>
 
-    <!-- ✅ ProgressBar (Hidden Initially) -->
+    <!-- ✅ Progress Bar -->
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
         android:layout_gravity="center"
-        android:layout_marginTop="8dp"/>
+        android:layout_marginTop="8dp" />
 
-    <!-- ✅ Product Info TextView -->
+    <!-- ✅ Product Info Text -->
     <TextView
         android:id="@+id/tvProductInfo"
         android:layout_width="match_parent"
@@ -66,16 +64,30 @@
         android:textSize="16sp"
         android:textColor="@color/black"
         android:padding="8dp"
-        android:visibility="gone"/>
+        android:visibility="gone" />
 
-    <!-- ✅ Product List -->
+    <!-- ✅ RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:contentDescription="@string/api_response_will_appear_here"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:padding="8dp" />
 
+    <!-- ✅ Empty View (NEW!) -->
+    <TextView
+        android:id="@+id/emptyView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="No products found."
+        android:textSize="18sp"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:textColor="@android:color/darker_gray"
+        android:padding="24dp"
+        android:visibility="gone" />
+
 </LinearLayout>
+
 
 

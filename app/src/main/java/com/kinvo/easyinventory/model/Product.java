@@ -4,7 +4,7 @@ public class Product {
     private int productId;
     private String productName;
     private double currentStock;
-    private double totalCost;
+    private double salePriceExcTax;
     private boolean stockUpdatedMessageVisible; // ✅ New property
 
     // Simplified constructor
@@ -12,7 +12,7 @@ public class Product {
         this.productId = productId;
         this.productName = productName;
         this.currentStock = currentStock;
-        this.totalCost = totalCost;
+        this.salePriceExcTax = totalCost;
         this.stockUpdatedMessageVisible = false; // Default hidden
     }
 
@@ -29,8 +29,8 @@ public class Product {
         return currentStock;
     }
 
-    public double getTotalCost() {
-        return totalCost;
+    public double getSalePriceExcTax() {
+        return salePriceExcTax;
     }
 
     // Setters
@@ -38,8 +38,8 @@ public class Product {
         this.currentStock = currentStock;
     }
 
-    public void setTotalCost(double totalCost) {
-        this.totalCost = totalCost;
+    public void setSalePriceExcTax(double salePriceExcTax) {
+        this.salePriceExcTax = salePriceExcTax;
     }
 
 

@@ -1,14 +1,18 @@
 package com.kinvo.easyinventory;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -30,6 +34,7 @@ public class ProductSearchActivity extends AppCompatActivity {
     private Button btnSearch;
     private ProgressBar progressBar;
     private RecyclerView recyclerView;
+    private TextView emptyView;
     private ProductAdapter productAdapter;
     private List<Product> productList;
     private RequestQueue requestQueue;
@@ -54,6 +59,8 @@ public class ProductSearchActivity extends AppCompatActivity {
         btnSearch = findViewById(R.id.btnSearch);
         progressBar = findViewById(R.id.progressBar);
         recyclerView = findViewById(R.id.recyclerView);
+        emptyView = findViewById(R.id.emptyView);
+
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         productList = new ArrayList<>();
@@ -66,21 +73,65 @@ public class ProductSearchActivity extends AppCompatActivity {
         productAdapter = new ProductAdapter(this, productList, authToken, locationId);
         recyclerView.setAdapter(productAdapter);
 
+        // Button Search click
         btnSearch.setOnClickListener(v -> {
+            fadeInProgressBar();
             String query = etSearch.getText().toString().trim();
             searchProduct(query);
+            etSearch.setText("");
+            etSearch.clearFocus();
+            hideKeyboard();
+            Toast.makeText(this, "Searching...", Toast.LENGTH_SHORT).show();
+        });
+
+        // Keyboard Enter press
+        etSearch.setOnEditorActionListener((textView, actionId, keyEvent) -> {
+            fadeInProgressBar();
+            String query = etSearch.getText().toString().trim();
+            searchProduct(query);
+            etSearch.setText("");
+            etSearch.clearFocus();
+            hideKeyboard();
+            Toast.makeText(this, "Searching...", Toast.LENGTH_SHORT).show();
+            return true;
         });
     }
 
     private void searchProduct(String query) {
         progressBar.setVisibility(View.VISIBLE);
         String url = "https://api.eposnowhq.com/api/v4/Inventory/stocks?LocationID=" + locationId;
-        if (!query.isEmpty()) {
+        if (query != null && !query.isEmpty()) {
             url += "&Search=" + query;
         }
 
-        ProductRequest productRequest = new ProductRequest(this, productList, productAdapter, progressBar, authToken);
+        ProductRequest productRequest = new ProductRequest(
+                this,
+                productList,
+                productAdapter,
+                progressBar,
+                authToken,
+                recyclerView,
+                emptyView
+        );
+
         requestQueue.add(productRequest.createRequest(url));
+    }
+
+    private void hideKeyboard() {
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+    }
+
+    private void fadeInProgressBar() {
+        progressBar.setAlpha(0f);
+        progressBar.setVisibility(View.VISIBLE);
+        progressBar.animate()
+                .alpha(1f)
+                .setDuration(300)
+                .setListener(null);
     }
 
     @Override
@@ -101,5 +152,6 @@ public class ProductSearchActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 }
+
 
 

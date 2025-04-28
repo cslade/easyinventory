@@ -51,7 +51,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         Product product = productList.get(position);
         holder.tvProductName.setText(product.getProductName());
         holder.tvCurrentStock.setText("Stock: " + product.getCurrentStock());
-        holder.tvTotalCost.setText(formatCurrency(product.getTotalCost()));
+        holder.tvPrice.setText(formatCurrency(product.getSalePriceExcTax()));
 
         if (product.isStockUpdatedMessageVisible()) {
             holder.tvStockUpdatedMessage.setVisibility(View.VISIBLE);
@@ -66,7 +66,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 product.setStockUpdatedMessageVisible(false);
                 notifyItemChanged(position);
-            }, 3000);
+            }, 10000);
 
             showUpdateStockDialog(product, holder.tvStockUpdatedMessage);
         });
@@ -78,14 +78,14 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     }
 
     public static class ProductViewHolder extends RecyclerView.ViewHolder {
-        public TextView tvProductName, tvCurrentStock, tvTotalCost, tvStockUpdatedMessage;
+        public TextView tvProductName, tvCurrentStock, tvPrice, tvStockUpdatedMessage;
         public Button btnUpdateStock;
 
         public ProductViewHolder(@NonNull View itemView) {
             super(itemView);
             tvProductName = itemView.findViewById(R.id.tvProductName);
             tvCurrentStock = itemView.findViewById(R.id.tvCurrentStock);
-            tvTotalCost = itemView.findViewById(R.id.tvTotalCost);
+            tvPrice = itemView.findViewById(R.id.tvPrice);
             tvStockUpdatedMessage = itemView.findViewById(R.id.tvStockUpdatedMessage);
             btnUpdateStock = itemView.findViewById(R.id.btnUpdateStock);
         }

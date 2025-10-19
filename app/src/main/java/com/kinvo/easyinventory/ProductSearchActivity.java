@@ -274,6 +274,39 @@ public class ProductSearchActivity extends AppCompatActivity {
         }
     }
 
+    private void exportCsv() {
+        // 🔒 Gate: allow DEMO + PREMIUM; block BASIC with upgrade dialog
+        if (!FeatureGate.requirePremiumOrDemo(
+                this,
+                SecurePrefs.get(this),
+                "Export CSV",
+                "https://easyinventory.io/pricing"  // or your real upgrade URL
+        )) {
+            return; // user is BASIC; dialog shown, so stop here
+        }
+
+        if (productAdapter == null) {
+            Toast.makeText(this, "Nothing to export", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        java.util.List<Product> items = productAdapter.getCurrentItems();
+        if (items == null || items.isEmpty()) {
+            Toast.makeText(this, "Nothing to export", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String csv = com.kinvo.easyinventory.util.CsvExporter.toCsv(items);
+
+        // Share as text (no storage permission needed)
+        Intent share = new Intent(Intent.ACTION_SEND);
+        share.setType("text/plain");
+        share.putExtra(Intent.EXTRA_SUBJECT, "EasyInventory Export");
+        share.putExtra(Intent.EXTRA_TEXT, csv);
+        startActivity(Intent.createChooser(share, "Share CSV"));
+    }
+
+
     // ---------- Mini utils ----------
 
     private static String safeText(EditText e) {
@@ -341,6 +374,10 @@ public class ProductSearchActivity extends AppCompatActivity {
             } else {
                 Toast.makeText(this, "Select a product first", Toast.LENGTH_SHORT).show();
             }
+            return true;
+
+        } else if (id == R.id.action_export_csv) {
+            exportCsv();
             return true;
 
         } else if (id == android.R.id.home) {

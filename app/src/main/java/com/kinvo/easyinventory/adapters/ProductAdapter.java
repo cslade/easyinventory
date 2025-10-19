@@ -19,6 +19,7 @@ import com.kinvo.easyinventory.R;
 import com.kinvo.easyinventory.model.Product;
 
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -29,7 +30,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     }
 
     private final Context context;
-    private final List<Product> productList;
+    private final List<Product> productList; // assumed mutable
     private final String authToken;
     private final int locationId;
 
@@ -38,24 +39,53 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
     public ProductAdapter(Context context, List<Product> productList, String authToken, int locationId) {
         this.context = context;
-        this.productList = productList;
+        this.productList = productList != null ? productList : new ArrayList<>();
         this.authToken = authToken;
         this.locationId = locationId;
+    }
+
+    // ---------- Public helpers (added) ----------
+
+    /** Returns a defensive copy of the items currently shown by the adapter. */
+    @NonNull
+    public List<Product> getCurrentItems() {
+        return new ArrayList<>(productList);
+    }
+
+    /** Replace all items and refresh the list. */
+    public void setItems(@NonNull List<Product> newItems) {
+        productList.clear();
+        productList.addAll(newItems);
+        selectedPos = RecyclerView.NO_POSITION;
+        notifyDataSetChanged();
+    }
+
+    /** Returns the currently selected item (if any). */
+    public Product getSelectedItem() {
+        if (selectedPos >= 0 && selectedPos < productList.size()) {
+            return productList.get(selectedPos);
+        }
+        return null;
+    }
+
+    /** Optional: allow screens to clear selection. */
+    public void clearSelection() {
+        int prev = selectedPos;
+        selectedPos = RecyclerView.NO_POSITION;
+        if (prev != RecyclerView.NO_POSITION) notifyItemChanged(prev);
     }
 
     public void setOnItemClickListener(OnItemClickListener l) {
         this.itemClickListener = l;
     }
 
-    public String formatCurrency(double amount) {
-        return NumberFormat.getCurrencyInstance(Locale.getDefault()).format(amount);
-    }
+    // ---------- RecyclerView plumbing ----------
 
     @NonNull
     @Override
     public ProductViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.item_product, parent, false);
-        return new ProductViewHolder(view, new InternalClickBridge());
+        return new ProductViewHolder(view);
     }
 
     @Override
@@ -63,15 +93,17 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         Product product = productList.get(position);
 
         holder.tvProductName.setText(product.getProductName());
-        holder.tvCurrentStock.setText("Stock: " + product.getCurrentStock());
+        holder.tvCurrentStock.setText("Stock: " + formatStock(product.getCurrentStock()));
         holder.tvPrice.setText(formatCurrency(product.getSalePriceExcTax()));
 
         holder.tvStockUpdatedMessage.setVisibility(
                 product.isStockUpdatedMessageVisible() ? View.VISIBLE : View.GONE
         );
 
-        // simple “selection” feedback (optional—add a selector bg if you want)
+        // simple “selection” feedback (optional—use a selector bg if desired)
         holder.itemView.setActivated(position == selectedPos);
+
+        holder.itemView.setOnClickListener(v -> onItemTapped(holder.getBindingAdapterPosition()));
 
         holder.btnUpdateStock.setOnClickListener(v -> {
             product.setStockUpdatedMessageVisible(true);
@@ -82,7 +114,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                 notifyItemChanged(position);
             }, 10_000);
 
-            showUpdateStockDialog(product, holder.tvStockUpdatedMessage);
+            showUpdateStockDialog(product);
         });
     }
 
@@ -105,88 +137,70 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         }
     }
 
+    // ---------- ViewHolder ----------
+
     public static class ProductViewHolder extends RecyclerView.ViewHolder {
         public final TextView tvProductName, tvCurrentStock, tvPrice, tvStockUpdatedMessage;
         public final Button btnUpdateStock;
 
-        public ProductViewHolder(@NonNull View itemView, @NonNull Runnable onClick) {
+        public ProductViewHolder(@NonNull View itemView) {
             super(itemView);
             tvProductName = itemView.findViewById(R.id.tvProductName);
             tvCurrentStock = itemView.findViewById(R.id.tvCurrentStock);
             tvPrice = itemView.findViewById(R.id.tvPrice);
             tvStockUpdatedMessage = itemView.findViewById(R.id.tvStockUpdatedMessage);
             btnUpdateStock = itemView.findViewById(R.id.btnUpdateStock);
-
-            itemView.setOnClickListener(v -> onClick.run());
         }
     }
 
-    private final class InternalClickBridge implements Runnable {
-        @Override public void run() {
-            // Resolve the correct adapter position from the clicked view holder
-            // by asking the RecyclerView at bind-time:
-            // We pass `this` into the ViewHolder; when it fires, we find which VH called us.
-            // Simpler approach: we’ll infer from the current “selectedPos” logic by
-            // walking up from the view. But since we don’t keep the view reference here,
-            // we’ll do the standard trick: ViewHolder invokes this, and we query its position:
-            // To keep it clean, we give the VH the Runnable, and here we’ll simply
-            // look up the current binding adapter position via getBindingAdapterPosition()
-            // which requires scope to the VH. The smallest change is to re-wire with a
-            // lambda at create-time. So we’ll actually override this in onCreateViewHolder:
-        }
+    // ---------- UI helpers ----------
+
+    private String formatCurrency(double amount) {
+        return NumberFormat.getCurrencyInstance(Locale.getDefault()).format(amount);
     }
 
-    // Convenience overload to attach the correct adapter position on click
-    @NonNull
-    private Runnable newClickForwarder(@NonNull ProductViewHolder vh) {
-        return () -> onItemTapped(vh.getBindingAdapterPosition());
+    private String formatStock(double s) {
+        return (s % 1 == 0) ? String.valueOf((int) s) : String.valueOf(s);
     }
 
-    // Recreate holder with position-aware click
-    @Override
-    public void onViewAttachedToWindow(@NonNull ProductViewHolder holder) {
-        super.onViewAttachedToWindow(holder);
-        holder.itemView.setOnClickListener(v -> onItemTapped(holder.getBindingAdapterPosition()));
-    }
-
-    public void showUpdateStockDialog(Product product, TextView tvStockUpdatedMessage) {
+    private void showUpdateStockDialog(Product product) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Update Stock for " + product.getProductName());
 
         final EditText input = new EditText(context);
-        input.setHint("Enter new stock value");
+        input.setHint("Enter new stock value (+/-)");
         builder.setView(input);
 
         builder.setPositiveButton("Update", null);
+        builder.setNegativeButton("Cancel", (d, w) -> d.dismiss());
 
         final AlertDialog dialog = builder.create();
         dialog.show();
 
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
-            String newStockValue = input.getText().toString().trim();
-            if (!newStockValue.isEmpty()) {
-                try {
-                    double changeInStock = Double.parseDouble(newStockValue);
-                    double newStock = product.getCurrentStock() + changeInStock;
-                    product.setCurrentStock(newStock);
-                    product.setStockUpdatedMessageVisible(true);
-                    notifyDataSetChanged();
-
-                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                        product.setStockUpdatedMessageVisible(false);
-                        notifyDataSetChanged();
-                    }, 3000);
-
-                    Toast.makeText(context, "Stock updated successfully!", Toast.LENGTH_SHORT).show();
-                    dialog.dismiss();
-                } catch (NumberFormatException e) {
-                    Toast.makeText(context, "Invalid stock quantity!", Toast.LENGTH_SHORT).show();
-                }
-            } else {
+            String deltaText = input.getText().toString().trim();
+            if (deltaText.isEmpty()) {
                 Toast.makeText(context, "Please enter a stock quantity!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            try {
+                double delta = Double.parseDouble(deltaText);
+                double newStock = product.getCurrentStock() + delta;
+                product.setCurrentStock(newStock);
+                product.setStockUpdatedMessageVisible(true);
+                notifyDataSetChanged();
+
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    product.setStockUpdatedMessageVisible(false);
+                    notifyDataSetChanged();
+                }, 3000);
+
+                Toast.makeText(context, "Stock updated!", Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
+            } catch (NumberFormatException e) {
+                Toast.makeText(context, "Invalid stock quantity!", Toast.LENGTH_SHORT).show();
             }
         });
-
-        dialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Cancel", (d, w) -> dialog.cancel());
     }
 }

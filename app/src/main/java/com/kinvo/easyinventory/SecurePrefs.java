@@ -20,7 +20,6 @@ public final class SecurePrefs {
     private static final String KEY_PLAN_NAME = "planName";
     private static final String KEY_TIER = "tier"; // stores "DEMO","BASIC","PREMIUM"
 
-
     // Keys
     private static final String KEY_API_KEY = "apiKey";
     private static final String KEY_API_SECRET = "apiSecret";
@@ -67,77 +66,61 @@ public final class SecurePrefs {
     }
 
     // -----------------------
-    // Getters / Setters (set* / get*)
+    // Getters / Setters
     // -----------------------
 
-    public String getApiKey() {
-        return prefs.getString(KEY_API_KEY, "");
-    }
+    public String getApiKey() { return prefs.getString(KEY_API_KEY, ""); }
+    public void setApiKey(@Nullable String v) { prefs.edit().putString(KEY_API_KEY, v != null ? v : "").apply(); }
 
-    public void setApiKey(@Nullable String value) {
-        prefs.edit().putString(KEY_API_KEY, value != null ? value : "").apply();
-    }
+    public String getApiSecret() { return prefs.getString(KEY_API_SECRET, ""); }
+    public void setApiSecret(@Nullable String v) { prefs.edit().putString(KEY_API_SECRET, v != null ? v : "").apply(); }
 
-    public String getApiSecret() {
-        return prefs.getString(KEY_API_SECRET, "");
-    }
+    public int getLocationId() { return prefs.getInt(KEY_LOCATION_ID, 0); }
+    public void setLocationId(int v) { prefs.edit().putInt(KEY_LOCATION_ID, v).apply(); }
 
-    public void setApiSecret(@Nullable String value) {
-        prefs.edit().putString(KEY_API_SECRET, value != null ? value : "").apply();
-    }
+    public String getAuthHeaderBasic() { return prefs.getString(KEY_AUTH_HEADER_BASIC, ""); }
+    public void setAuthHeaderBasic(@Nullable String v) { prefs.edit().putString(KEY_AUTH_HEADER_BASIC, v != null ? v : "").apply(); }
 
-    public int getLocationId() {
-        return prefs.getInt(KEY_LOCATION_ID, 0);
-    }
+    public boolean getRememberApi() { return prefs.getBoolean(KEY_REMEMBER_API, false); }
+    public void setRememberApi(boolean v) { prefs.edit().putBoolean(KEY_REMEMBER_API, v).apply(); }
 
-    public void setLocationId(int value) {
-        prefs.edit().putInt(KEY_LOCATION_ID, value).apply();
-    }
+    public boolean isLoggedIn() { return prefs.getBoolean(KEY_IS_LOGGED_IN, false); }
+    public void setLoggedIn(boolean v) { prefs.edit().putBoolean(KEY_IS_LOGGED_IN, v).apply(); }
 
-    public String getAuthHeaderBasic() {
-        return prefs.getString(KEY_AUTH_HEADER_BASIC, "");
-    }
-
-    public void setAuthHeaderBasic(@Nullable String value) {
-        prefs.edit().putString(KEY_AUTH_HEADER_BASIC, value != null ? value : "").apply();
-    }
-
-    public boolean getRememberApi() {
-        return prefs.getBoolean(KEY_REMEMBER_API, false);
-    }
-
-    public void setRememberApi(boolean value) {
-        prefs.edit().putBoolean(KEY_REMEMBER_API, value).apply();
-    }
-
-    public boolean isLoggedIn() {
-        return prefs.getBoolean(KEY_IS_LOGGED_IN, false);
-    }
-
-    public void setLoggedIn(boolean value) {
-        prefs.edit().putBoolean(KEY_IS_LOGGED_IN, value).apply();
-    }
-
-    public String getPlanName() {
-        return prefs.getString(KEY_PLAN_NAME, "");
-    }
-
-    public void setPlanName(String name) {
-        prefs.edit().putString(KEY_PLAN_NAME, name == null ? "" : name).apply();
-    }
+    public String getPlanName() { return prefs.getString(KEY_PLAN_NAME, ""); }
+    public void setPlanName(String name) { prefs.edit().putString(KEY_PLAN_NAME, name == null ? "" : name).apply(); }
 
     public void setTier(Tier tier) {
         prefs.edit().putString(KEY_TIER, tier == null ? Tier.BASIC.name() : tier.name()).apply();
     }
 
+    /** Raw string (nullable/empty allowed) if you need to see stored value. */
+    public String getTierRaw() {
+        return prefs.getString(KEY_TIER, "");
+    }
+
     /** If nothing stored yet, default from the current build flavor. */
     public Tier getTier() {
-        String raw = prefs.getString(KEY_TIER, "");
+        String raw = getTierRaw();
         if (raw == null || raw.isEmpty()) {
             return TierUtils.fromFlavor(BuildConfig.FLAVOR);
         }
         return Tier.fromString(raw);
     }
+
+    /** Initialize the tier from flavor only if it's not set yet. Call early (e.g., Splash). */
+    public void ensureTierFromFlavorIfMissing() {
+        if (getTierRaw() == null || getTierRaw().isEmpty()) {
+            setTier(TierUtils.fromFlavor(BuildConfig.FLAVOR));
+        }
+    }
+
+    // -----------------------
+    // Tier helpers (nice for gating)
+    // -----------------------
+    public boolean isDemo()    { return getTier() == Tier.DEMO; }
+    public boolean isBasic()   { return getTier() == Tier.BASIC; }
+    public boolean isPremium() { return getTier() == Tier.PREMIUM; }
 
     // -----------------------
     // Helpers
@@ -152,15 +135,14 @@ public final class SecurePrefs {
             setApiKey(null);
             setApiSecret(null);
             setLocationId(0);
+            // Intentionally do NOT clear tier/plan so UI can still gate features consistently.
         } catch (Throwable t) {
             Log.w(TAG, "logout() partial failure (continuing): " + t);
         }
     }
 
-    /** Hard clear of all keys (you said you already had this—keeping it). */
-    public void clearAll() {
-        prefs.edit().clear().apply();
-    }
+    /** Hard clear of all keys. */
+    public void clearAll() { prefs.edit().clear().apply(); }
 
     /** Optional: handy for debugging (redacted). */
     public String snapshotRedacted() {
@@ -170,7 +152,7 @@ public final class SecurePrefs {
         int loc = getLocationId();
         boolean remember = getRememberApi();
         boolean logged = isLoggedIn();
-        return "apiKey=" + apiKey + ", apiSecret=" + apiSecret + ", auth=" + auth
+        return "tier=" + getTier() + ", apiKey=" + apiKey + ", apiSecret=" + apiSecret + ", auth=" + auth
                 + ", locationId=" + loc + ", rememberApi=" + remember + ", isLoggedIn=" + logged;
     }
 

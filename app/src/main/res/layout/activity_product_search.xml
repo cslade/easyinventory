@@ -7,12 +7,7 @@
     android:padding="16dp"
     android:background="@android:color/white">
 
-    <!-- Optional tier banner include -->
-    <include
-        android:id="@+id/tierBanner"
-        layout="@layout/include_tier_banner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+    
 
     <!-- Toolbar -->
     <com.google.android.material.appbar.MaterialToolbar

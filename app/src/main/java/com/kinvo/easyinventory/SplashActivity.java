@@ -6,8 +6,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import android.widget.Toast;
-
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -15,69 +13,74 @@ public class SplashActivity extends AppCompatActivity {
 
     private static final String TAG = "Splash";
 
-    // Primary user prefs for membership flag
+    // UserPrefs (non-sensitive): we only keep a simple membership flag here.
     private static final String PREFS_USER = "UserPrefs";
     private static final String KEY_MEMBERSHIP_OK = "membershipOk";
 
-    // Tiny delay just for visual splash
+    // Tiny delay for visual splash
     private static final long SPLASH_DELAY_MS = 900L;
-
-    // Auth URLs (adjust if your production URL differs)
-    private static final String DEMO_AUTH_URL = "https://easyinventory.webflow.io/login";
-    private static final String PROD_AUTH_URL = "https://easyinventory.io/login";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        initTierFromBuild();
         setContentView(R.layout.activity_splash); // keep this lightweight
 
-        // Set default tier from the current flavor so the app can gate features immediately.
+
+        // 1) Seed tier from current Gradle flavor so gates are ready immediately.
         try {
             SecurePrefs prefs = SecurePrefs.get(this);
-            Tier tier = TierUtils.fromFlavor(BuildConfig.FLAVOR); // demo/basic/premium
-            prefs.setTier(tier);
-            prefs.setPlanName(tier.name()); // or a friendlier label if you prefer
+            Tier current = TierUtils.fromFlavor(BuildConfig.FLAVOR); // demo/basic/premium
+            prefs.setTier(current);
+            // optional: friendly plan label; adjust if you map to something prettier
+            prefs.setPlanName(current.name());
+            Log.d(TAG, "Seeded tier from flavor: " + current + " (flavor=" + BuildConfig.FLAVOR + ")");
         } catch (Exception e) {
             Log.w(TAG, "SecurePrefs tier bootstrap failed", e);
         }
 
-        Log.d(TAG, "onCreate() flavor=" + BuildConfig.FLAVOR
-                + " isDemo=" + BuildConfig.IS_DEMO
-                + " isPremium=" + BuildConfig.IS_PREMIUM);
-
-        // If opened by a deep link, this helps verify what arrived
+        // If opened by a deep link, log it for debugging
         Intent launch = getIntent();
         if (launch != null && launch.getData() != null) {
             Log.d(TAG, "Launch data URI: " + launch.getData());
         }
 
+        // 2) Route after a short delay
         new Handler(Looper.getMainLooper()).postDelayed(this::navigateNext, SPLASH_DELAY_MS);
     }
 
+    // --- Force the tier from the installed flavor (authoritative) ---
+    private void initTierFromBuild() {
+        SecurePrefs prefs = SecurePrefs.get(this);
+        Tier tier = resolveTierFromBuild();
+        prefs.setTier(tier);
+
+        // If your SecurePrefs also tracks a plan label, you can set it here:
+        // prefs.setPlanName(tier.name()); // <-- include only if this method exists in your project
+    }
+
+    private Tier resolveTierFromBuild() {
+        if (BuildConfig.IS_DEMO)    return Tier.DEMO;
+        if (BuildConfig.IS_PREMIUM) return Tier.PREMIUM;
+        return Tier.BASIC; // default
+    }
+
+
     private void navigateNext() {
+        // Simple flag that says whether the user completed your membership login step
         SharedPreferences sp = getSharedPreferences(PREFS_USER, MODE_PRIVATE);
         boolean membershipOk = sp.getBoolean(KEY_MEMBERSHIP_OK, false);
         Log.d(TAG, "membershipOk=" + membershipOk);
 
         if (membershipOk) {
-            // Membership already verified -> go collect API creds
+            // Membership already verified -> go to API credentials screen
             Log.d(TAG, "Routing -> LoginActivity");
             startActivity(new Intent(this, LoginActivity.class));
-            finish();
-            return;
+        } else {
+            // Otherwise go to MembershipLoginActivity first
+            Log.d(TAG, "Routing -> MembershipLoginActivity");
+            startActivity(new Intent(this, MembershipLoginActivity.class));
         }
-
-        // Not verified yet -> show hosted login in WebView
-        String authUrl = BuildConfig.IS_DEMO ? DEMO_AUTH_URL : PROD_AUTH_URL;
-        if (authUrl == null || authUrl.trim().isEmpty()) {
-            Toast.makeText(this, "Missing auth URL", Toast.LENGTH_SHORT).show();
-            authUrl = DEMO_AUTH_URL;
-        }
-
-        Log.d(TAG, "Routing -> WebViewLoginActivity with authUrl=" + authUrl);
-        Intent i = new Intent(this, WebViewLoginActivity.class);
-        i.putExtra("authUrl", authUrl);
-        startActivity(i);
         finish();
     }
 }

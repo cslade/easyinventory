@@ -12,7 +12,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -36,13 +35,14 @@ import java.util.List;
 
 public class ProductSearchActivity extends AppCompatActivity {
 
+    private static final String TAG = "ProductSearchActivity";
+
+    // Theme persistence
     private static final String PREFS_NAME = "app_prefs";
     private static final String KEY_THEME_MODE = "theme_mode";
     private String lastThemeMode;
 
-    private static final String TAG = "ProductSearchActivity";
-
-    // Legacy keys for back-compat reads
+    // Legacy prefs for back-compat reads
     private static final String LEGACY_PREFS = "MyAppPrefs";
     private static final String LEGACY_KEY_TOKEN = "authToken";
     private static final String LEGACY_KEY_LOCATION = "locationId";
@@ -53,10 +53,9 @@ public class ProductSearchActivity extends AppCompatActivity {
     private static final String KEY_API_SECRET = "apiSecret";
     private static final String KEY_LOCATION_ID = "locationId";
 
-
     // Views
     private EditText etSearch;
-    private Button btnSearch;
+    private View btnSearch;
     private ProgressBar progressBar;
     private TextView emptyView;
     private RecyclerView recyclerView;
@@ -81,6 +80,7 @@ public class ProductSearchActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_product_search);
 
+        // Toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         lastThemeMode = ThemeManager.getMode(this);
@@ -88,6 +88,7 @@ public class ProductSearchActivity extends AppCompatActivity {
             getSupportActionBar().setTitle("Inventory Update");
         }
 
+        // Views
         etSearch = findViewById(R.id.etSearch);
         btnSearch = findViewById(R.id.btnSearch);
         progressBar = findViewById(R.id.progressBar);
@@ -95,6 +96,7 @@ public class ProductSearchActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerProducts);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+        // Setup
         requestQueue = Volley.newRequestQueue(this);
         prefs = SecurePrefs.get(this);
 
@@ -105,10 +107,9 @@ public class ProductSearchActivity extends AppCompatActivity {
             Log.d(TAG, "authHeader present? " + (authHeader != null) + ", locationId=" + locationId);
         }
 
+        // Adapter + item selection (for Print)
         productAdapter = new ProductAdapter(this, productList, authHeader, locationId);
         recyclerView.setAdapter(productAdapter);
-
-        // Selection -> used by the Print toolbar item
         productAdapter.setOnItemClickListener(item -> {
             selectedProduct = item;
             Toast.makeText(this, "Selected: " + item.getDescription(), Toast.LENGTH_SHORT).show();
@@ -122,7 +123,7 @@ public class ProductSearchActivity extends AppCompatActivity {
             return;
         }
 
-        // Old behavior preserved
+        // Search handlers
         btnSearch.setOnClickListener(this::onClickSearch);
         etSearch.setOnEditorActionListener((tv, actionId, keyEvent) -> {
             onClickSearch(tv);
@@ -234,9 +235,18 @@ public class ProductSearchActivity extends AppCompatActivity {
         }
     }
 
-    // ---------- Printing ----------
+    // ---------- Printing (gated: Demo + Premium allowed, Basic -> upgrade dialog) ----------
 
     private void onClickPrintFor(Product p) {
+        if (!FeatureGate.requirePremiumOrDemo(
+                this,
+                SecurePrefs.get(this),
+                "Printing labels",
+                "https://easyinventory.io/pricing")) {
+            // BASIC tier -> dialog shown by FeatureGate; abort
+            return;
+        }
+
         LabelData data = new LabelData(
                 nullSafe(p.getDescription()),          // top-left
                 nullSafe(resolveBarcode(p)),           // barcode value
@@ -320,6 +330,7 @@ public class ProductSearchActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
+
         if (id == R.id.action_settings) {
             startActivity(new Intent(this, SettingsActivity.class));
             return true;
@@ -336,8 +347,7 @@ public class ProductSearchActivity extends AppCompatActivity {
             onBackPressed();
             return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
-
-
 }

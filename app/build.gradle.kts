@@ -53,6 +53,7 @@ android {
             versionNameSuffix = "-demo"
 
             // BuildConfig for code
+            buildConfigField("boolean", "IS_BASIC", "false")
             buildConfigField("boolean", "IS_PREMIUM", "false")
             buildConfigField("boolean", "IS_DEMO", "true")
             buildConfigField("String",  "TIER", "\"demo\"")
@@ -70,6 +71,7 @@ android {
             applicationIdSuffix = ".basic"
             versionNameSuffix = "-basic"
 
+            buildConfigField("boolean", "IS_BASIC", "true")
             buildConfigField("boolean", "IS_PREMIUM", "false")
             buildConfigField("boolean", "IS_DEMO", "false")
             buildConfigField("String",  "TIER", "\"basic\"")
@@ -83,6 +85,7 @@ android {
             applicationIdSuffix = ".premium"
             versionNameSuffix = "-premium"
 
+            buildConfigField("boolean", "IS_BASIC", "false")
             buildConfigField("boolean", "IS_PREMIUM", "true")
             buildConfigField("boolean", "IS_DEMO", "false")
             buildConfigField("String",  "TIER", "\"premium\"")

@@ -12,6 +12,10 @@ public enum Tier {
             default: return BASIC;
         }
     }
-}
 
+    /** Demo & Premium can print labels; Basic requires upgrade */
+    public boolean allowsPrinting() {
+        return this == DEMO || this == PREMIUM;
+    }
+}
 

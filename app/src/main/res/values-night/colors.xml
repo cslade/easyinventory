@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- popup menu (dark) -->
+    <color name="ei_popup_bg">#2B2B2B</color>
+    <color name="ei_popup_text">#FFFFFF</color>
+</resources>

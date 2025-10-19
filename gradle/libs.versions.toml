@@ -1,5 +1,6 @@
 [versions]
 agp = "8.10.0-rc02"
+core = "3.5.3"
 emdk = "9.1.1"
 gson = "2.10.1"
 kotlin = "1.9.24"
@@ -12,15 +13,21 @@ material = "1.12.0"
 okhttp = "4.12.0"
 okhttpVersion = "4.10.0"
 playServicesAnalyticsImpl = "18.2.0"
+print = "1.1.0"
 recyclerview = "1.4.0"
+securityCrypto = "1.1.0"
 volley = "1.2.1"
 activity = "1.8.0"
 constraintlayout = "2.1.4"
 browser = "1.9.0-alpha02"
+preference = "1.2.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-print = { module = "androidx.print:print", version.ref = "print" }
 androidx-recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "recyclerview" }
+androidx-security-crypto = { module = "androidx.security:security-crypto", version.ref = "securityCrypto" }
+core = { module = "com.google.zxing:core", version.ref = "core" }
 emdk = { module = "com.symbol:emdk", version.ref = "emdk" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -35,6 +42,7 @@ volley = { group = "com.android.volley", name = "volley", version.ref = "volley"
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 androidx-browser = { group = "androidx.browser", name = "browser", version.ref = "browser" }
+androidx-preference = { group = "androidx.preference", name = "preference", version.ref = "preference" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

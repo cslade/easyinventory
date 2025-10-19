@@ -1,119 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/loginRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:padding="24dp"
-    android:background="@color/white">
+    android:padding="20dp">
 
-    <!-- ✅ App Logo -->
-    <ImageView
-        android:layout_width="160dp"
-        android:layout_height="160dp"
-        android:src="@drawable/logo"
-        android:layout_marginBottom="16dp"/>
-
-    <!-- ✅ Title -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
-        android:fontFamily="@font/trade_winds"
-        android:text="Easy Inventory"
-        android:textColor="@color/purple_700"
-        android:textSize="20sp"
-        android:textStyle="bold" />
-
-    <!-- ✅ API Key Input -->
     <EditText
-        android:id="@+id/etApiKey"
-        android:layout_width="match_parent"
+        android:id="@+id/inputApiKey"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:autofillHints=""
-        android:background="@drawable/input_background"
-        android:hint="Enter ePOSNow API Key"
+        android:hint="API Key"
+        android:inputType="textNoSuggestions"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <EditText
+        android:id="@+id/inputApiSecret"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="API Secret"
         android:inputType="textPassword"
-        android:padding="12dp"
-        android:textColorHint="#546E7A"
-        android:textSize="14sp"
-        tools:ignore="TouchTargetSizeCheck" />
+        app:layout_constraintTop_toBottomOf="@id/inputApiKey"
+        app:layout_constraintStart_toStartOf="@id/inputApiKey"
+        app:layout_constraintEnd_toEndOf="@id/inputApiKey"
+        android:layout_marginTop="12dp"/>
 
-    <!-- ✅ API Secret Input with Toggle -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical">
-
-        <EditText
-            android:id="@+id/etApiSecret"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:autofillHints=""
-            android:background="@drawable/input_background"
-            android:hint="Enter ePOSNow API Secret"
-            android:inputType="textPassword"
-            android:padding="12dp"
-            android:textColorHint="#546E7A"
-            android:textSize="14sp"
-            tools:ignore="TouchTargetSizeCheck" />
-
-
-
-
-        <ImageButton
-            android:id="@+id/btnTogglePassword"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="TODO"
-            android:src="@drawable/ic_eye"
-            tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
-    </LinearLayout>
-
-    <!-- ✅ Location ID Input Field -->
     <EditText
-        android:id="@+id/etLocationId"
-        android:layout_width="match_parent"
+        android:id="@+id/inputLocationId"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:autofillHints=""
-        android:background="@drawable/input_background"
-        android:hint="Enter Location ID"
+        android:hint="Location ID"
         android:inputType="number"
-        android:padding="12dp"
-        android:textSize="14sp"
-        tools:ignore="TouchTargetSizeCheck"
-        android:textColorHint="#546E7A"/>
+        app:layout_constraintTop_toBottomOf="@id/inputApiSecret"
+        app:layout_constraintStart_toStartOf="@id/inputApiSecret"
+        app:layout_constraintEnd_toEndOf="@id/inputApiSecret"
+        android:layout_marginTop="12dp"/>
 
-    <CheckBox
-        android:id="@+id/checkboxRememberMeAPI"
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/switchRememberKeys"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Remember Me"
-        android:padding="4dp"/>
-
-    <!-- ✅ Authenticate Button -->
-    <Button
-        android:id="@+id/btnAuthenticate"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Authenticate"
-        android:textSize="16sp"
-        android:background="@drawable/button_background"
-        android:textColor="@color/white"
+        android:text="Remember API Key-Secret"
+        app:layout_constraintTop_toBottomOf="@id/inputLocationId"
+        app:layout_constraintStart_toStartOf="@id/inputLocationId"
         android:layout_marginTop="16dp"/>
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
+    <Button
+        android:id="@+id/buttonContinue"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:visibility="gone"
-        android:layout_gravity="center"
-        style="?android:attr/progressBarStyleLarge"/>
+        android:text="Continue"
+        app:layout_constraintTop_toBottomOf="@id/switchRememberKeys"
+        app:layout_constraintStart_toStartOf="@id/switchRememberKeys"
+        app:layout_constraintEnd_toEndOf="@id/inputLocationId"
+        android:layout_marginTop="24dp"/>
 
-
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

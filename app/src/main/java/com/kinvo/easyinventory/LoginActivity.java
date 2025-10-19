@@ -1,137 +1,158 @@
 package com.kinvo.easyinventory;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 
+import java.nio.charset.StandardCharsets;
+
+/**
+ * Collects API Key, Secret, and Location ID, persists them via SecurePrefs,
+ * and navigates to ProductSearchActivity.
+ */
 public class LoginActivity extends AppCompatActivity {
 
-    private EditText etApiKey, etApiSecret, etLocationId;
-    private Button btnAuthenticate;
-    private ProgressBar progressBar;
-    private CheckBox checkboxRememberMe;
-
     private static final String TAG = "LoginActivity";
-    private static final String PREFS_NAME = "MyAppPrefs";
-    private SharedPreferences sharedPreferences;
+
+    private EditText etApiKey;
+    private EditText etApiSecret;
+    private EditText etLocationId;
+    private SwitchCompat switchRemember;
+    private Button btnContinue;
+
+    private SecurePrefs prefs; // Encrypted helper
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
-        // Show membership type (if coming from WebView login)
-        SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
-        String membershipType = prefs.getString("membershipType", null);
-        if (membershipType != null) {
-            Toast.makeText(this, "Welcome " + membershipType + " member!", Toast.LENGTH_LONG).show();
-        }
+        setContentView(R.layout.activity_login); // ensure this layout has the expected IDs
 
+        etApiKey = findViewById(R.id.inputApiKey);
+        etApiSecret = findViewById(R.id.inputApiSecret);
+        etLocationId = findViewById(R.id.inputLocationId);
+        switchRemember = findViewById(R.id.switchRememberKeys);
+        btnContinue = findViewById(R.id.buttonContinue);
 
-        // ✅ Initialize UI Elements
-        etApiKey = findViewById(R.id.etApiKey);
-        etApiSecret = findViewById(R.id.etApiSecret);
-        etLocationId = findViewById(R.id.etLocationId);
-        btnAuthenticate = findViewById(R.id.btnAuthenticate);
-        progressBar = findViewById(R.id.progressBar);
-        checkboxRememberMe = findViewById(R.id.checkboxRememberMeAPI);
-
-        sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-
-        // ✅ Load saved credentials if "Remember Me" was checked
-        loadSavedCredentials();
-
-        // ✅ Set Click Listener
-        btnAuthenticate.setOnClickListener(v -> authenticateUser());
-    }
-
-    private void authenticateUser() {
-        String apiKey = etApiKey.getText().toString().trim();
-        String apiSecret = etApiSecret.getText().toString().trim();
-        String locationIdString = etLocationId.getText().toString().trim();
-
-        Log.d(TAG, "Entered API Key: " + apiKey);
-        Log.d(TAG, "Entered API Secret: " + apiSecret);
-        Log.d(TAG, "Entered Location ID: " + locationIdString);
-
-        if (apiKey.isEmpty() || apiSecret.isEmpty() || locationIdString.isEmpty()) {
-            Toast.makeText(this, "All fields are required!", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        int locationId;
         try {
-            locationId = Integer.parseInt(locationIdString);
-        } catch (NumberFormatException e) {
-            Toast.makeText(this, "Invalid Location ID!", Toast.LENGTH_SHORT).show();
+            prefs = SecurePrefs.get(this);
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to init SecurePrefs", e);
+            Toast.makeText(this, "Storage init failed. Please restart the app.", Toast.LENGTH_LONG).show();
+            // If we can’t initialize secure storage, there’s no point continuing.
+            finish();
             return;
         }
 
-        // ✅ Generate Base64 authToken using API Key & Secret
-        String credentials = apiKey + ":" + apiSecret;
-        String authToken = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
+        // Pre-fill from secure prefs if user chose "remember"
+        boolean rememberApi = prefs.getRememberApi();
+        String savedKey = prefs.getApiKey();
+        String savedSecret = prefs.getApiSecret();
+        int savedLocation = prefs.getLocationId();
 
-        Log.d(TAG, "Generated Auth Token: " + authToken);
+        Log.d(TAG, "onCreate -> remember=" + rememberApi
+                + ", apiKey=" + mask(savedKey)
+                + ", apiSecret=" + mask(savedSecret)
+                + ", locationId=" + savedLocation);
 
-        // ✅ Store authToken and locationId in SharedPreferences
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("authToken", authToken);
-        editor.putString("locationId", String.valueOf(locationId)); // ✅ Store as String
-        editor.apply();
+        if (rememberApi) {
+            if (!TextUtils.isEmpty(savedKey)) etApiKey.setText(savedKey);
+            if (!TextUtils.isEmpty(savedSecret)) etApiSecret.setText(savedSecret);
+            if (savedLocation > 0) etLocationId.setText(String.valueOf(savedLocation));
+            if (switchRemember != null) switchRemember.setChecked(true);
+        }
 
-        Log.d(TAG, "Saved Auth Token: " + authToken);
-        Log.d(TAG, "Saved Location ID: " + locationId);
-
-        // ✅ Save credentials if "Remember Me" is checked
-        saveCredentials(apiKey, apiSecret, locationIdString, checkboxRememberMe.isChecked());
-
-        navigateToProductSearch();
+        btnContinue.setOnClickListener(v -> onContinue());
     }
 
-    private void navigateToProductSearch() {
-        Intent intent = new Intent(this, ProductSearchActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
+    private void onContinue() {
+        hideKeyboard();
+
+        String apiKey = safeTrim(etApiKey.getText());
+        String apiSecret = safeTrim(etApiSecret.getText());
+        String locationStr = safeTrim(etLocationId.getText());
+        boolean remember = switchRemember != null && switchRemember.isChecked();
+
+        Log.d(TAG, "onContinue -> remember=" + remember
+                + ", apiKey=" + mask(apiKey)
+                + ", apiSecret=" + mask(apiSecret)
+                + ", locationStr=" + locationStr);
+
+        if (TextUtils.isEmpty(apiKey) || TextUtils.isEmpty(apiSecret)) {
+            Toast.makeText(this, "Please enter API Key and Secret", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        int locationId = parseLocation(locationStr);
+        if (locationId <= 0) {
+            Toast.makeText(this, "Please enter a valid Location ID", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String basicHeader = buildBasicHeader(apiKey, apiSecret);
+        Log.d(TAG, "Built Basic header (masked): " + maskHeader(basicHeader));
+
+        // Persist securely
+        // If "remember" is OFF, we still keep location + header but clear key/secret.
+        prefs.setApiKey(remember ? apiKey : "");
+        prefs.setApiSecret(remember ? apiSecret : "");
+        prefs.setLocationId(locationId);
+        prefs.setAuthHeaderBasic(basicHeader);
+        prefs.setRememberApi(remember);
+
+        Log.d(TAG, "Saved to SecurePrefs -> remember=" + remember
+                + ", locationId=" + locationId
+                + ", apiKey=" + mask(apiKey));
+
+        // Navigate to ProductSearchActivity (it should read everything from SecurePrefs)
+        Intent next = new Intent(this, ProductSearchActivity.class);
+        startActivity(next);
         finish();
     }
 
-    // ✅ Save API credentials only if "Remember Me" is checked
-    private void saveCredentials(String apiKey, String apiSecret, String locationId, boolean rememberMe) {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        if (rememberMe) {
-            editor.putString("apiKey", apiKey);
-            editor.putString("apiSecret", apiSecret);
-            editor.putString("locationId", locationId);
-            editor.putBoolean("rememberMe", true);
-            Log.d(TAG, "✅ Saving API Key: " + apiKey);
-            Log.d(TAG, "✅ Saving API Secret: " + apiSecret);
-            Log.d(TAG, "✅ Saving Location ID: " + locationId);
-        } else {
-            editor.remove("apiKey");
-            editor.remove("apiSecret");
-            editor.remove("locationId");
-            editor.putBoolean("rememberMe", false);
-            Log.d(TAG, "❌ Clearing saved credentials.");
-        }
-        editor.apply();
+    private static String buildBasicHeader(String key, String secret) {
+        String combo = key + ":" + secret;
+        String enc = Base64.encodeToString(combo.getBytes(StandardCharsets.UTF_8), Base64.NO_WRAP);
+        return "Basic " + enc;
     }
 
-    // ✅ Load saved credentials if "Remember Me" was checked
-    private void loadSavedCredentials() {
-        boolean rememberMe = sharedPreferences.getBoolean("rememberMe", false);
-        if (rememberMe) {
-            etApiKey.setText(sharedPreferences.getString("apiKey", ""));
-            etApiSecret.setText(sharedPreferences.getString("apiSecret", ""));
-            etLocationId.setText(sharedPreferences.getString("locationId", ""));
-            checkboxRememberMe.setChecked(true);
+    private static int parseLocation(String s) {
+        if (TextUtils.isEmpty(s)) return 0;
+        try {
+            return Integer.parseInt(s.trim());
+        } catch (NumberFormatException e) {
+            return 0;
         }
+    }
+
+    private static String safeTrim(CharSequence cs) {
+        return cs == null ? "" : cs.toString().trim();
+    }
+
+    private void hideKeyboard() {
+        View v = getCurrentFocus();
+        if (v != null) v.clearFocus();
+    }
+
+    // Mask helpers for safe logging
+    private static String mask(String s) {
+        if (TextUtils.isEmpty(s)) return "";
+        if (s.length() <= 4) return "****";
+        return s.substring(0, 2) + "****" + s.substring(s.length() - 2);
+    }
+
+    private static String maskHeader(String h) {
+        if (TextUtils.isEmpty(h)) return "";
+        int idx = h.indexOf(' ');
+        if (idx < 0 || idx == h.length() - 1) return "Basic ****";
+        return h.substring(0, idx + 1) + "****";
     }
 }

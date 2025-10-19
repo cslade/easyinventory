@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <string name="app_name">Demo EZ Inventory</string>
+    <string name="plan_name">Demo</string>
+    <string name="upgrade_required">Upgrade to Premium to use this feature.</string>
+    <string name="banner_text">Demo Mode: Read-only, no printing.</string>
+</resources>
+
+

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <string name="app_name">Basic EZ Inventory</string>
+    <string name="plan_name">Basic</string>
+    <string name="upgrade_required">Upgrade to Premium to use this feature.</string>
+    <string name="banner_text">Basic Plan: Printing not included.</string>
+</resources>
+

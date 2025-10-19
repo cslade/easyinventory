@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <string name="app_name">Prem EZ Inventory</string>
+    <string name="plan_name">Premium</string>
+    <string name="upgrade_required">You already have Premium.</string>
+    <string name="banner_text">Premium: All features unlocked.</string>
+</resources>
+
+

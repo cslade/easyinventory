@@ -1,72 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.kinvo.easyinventory">
+    <uses-permission android:name="android.permission.INTERNET" />
+
 
     <application
+        android:name=".MyApplication"
         android:allowBackup="true"
-        android:label="Easy Inventory"
+        android:label="@string/app_name"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.EasyInventory">
 
-        <activity android:name=".SplashActivity"
-            android:exported="true">
+
+        <activity
+            android:name=".SplashActivity"
+            android:exported="true"
+            android:theme="@style/Theme.EasyInventory">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".LoginActivity" android:exported="true" />
-        <activity android:name=".MembershipLoginActivity" android:exported="true" />
-        <activity android:name=".ProductSearchActivity" android:exported="true" />
-        <activity android:name=".SettingsActivity" android:exported="true" />
-        <activity android:name=".PrivacyPolicyActivity" android:exported="true" />
-        <activity android:name=".UserAgreementActivity" android:exported="true" />
-        <activity android:name=".TermsOfServiceActivity" android:exported="true" />
-        <activity android:name=".AboutActivity" android:exported="true" />
+        <!-- other activities... -->
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="false"
+            android:label="@string/title_settings"
+            android:theme="@style/Theme.EasyInventory" />
 
-        <!-- ✅ WebViewLoginActivity handles redirects from Memberstack -->
+        <!-- Membership login (after WebView success) -->
+        <activity
+            android:name=".MembershipLoginActivity"
+            android:exported="false" />
+
+        <!-- API Key & Secret screen -->
+        <activity
+            android:name=".LoginActivity"
+            android:exported="false" />
+
+        <!-- Product search -->
+        <activity
+            android:name=".ProductSearchActivity"
+            android:exported="false" />
+
+        <!-- Generic webview / OAuth login -->
+        <activity android:name=".PrivacyPolicyActivity" android:exported="false" />
+        <activity android:name=".TermsOfServiceActivity" android:exported="false" />
+        <activity android:name=".UserAgreementActivity" android:exported="false" />
+        <activity android:name=".AboutActivity" android:exported="false" />
+        <activity android:name=".WebViewActivity" android:exported="false" />
+
         <activity
             android:name=".WebViewLoginActivity"
             android:exported="true"
-            android:theme="@style/Theme.EasyInventory">
+            android:launchMode="singleTop">
 
-            <!-- 🔁 Redirect from Basic Membership -->
-            <intent-filter android:autoVerify="true">
+            <!-- Custom scheme deep link: easyinventory://auth/callback?status=success -->
+            <intent-filter android:autoVerify="false">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data
-                    android:scheme="https"
-                    android:host="www.easyinventory.io"
-                    android:pathPrefix="/basic/account" />
+                    android:scheme="${appScheme}"
+                    android:host="auth"
+                    android:pathPrefix="/auth/callback" />
             </intent-filter>
 
-            <!-- 🔁 Redirect from Premium Membership -->
+            <!-- HTTPS deep link (host varies by flavor via manifestPlaceholders):
+                 demo    -> easyinventory.webflow.io
+                 basic/premium -> app.easyinventory.com -->
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data
                     android:scheme="https"
-                    android:host="www.easyinventory.io"
-                    android:pathPrefix="/premium/account" />
-            </intent-filter>
+                    android:host="${authHost}"
+                    android:pathPrefix="/auth/callback" />
 
-            <!-- 🔁 Optional generic callback handler -->
-            <intent-filter android:autoVerify="true">
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data
-                    android:scheme="https"
-                    android:host="www.easyinventory.io"
-                    android:pathPrefix="/callback" />
             </intent-filter>
         </activity>
 
+        <!-- Policies / docs (optional, keep if you have these activities) -->
+
+
+
+
+
     </application>
 </manifest>
-

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Your app theme(s) already here -->
+
+    <!-- Overlay applied only to the Toolbar’s overflow popup -->
+    <style name="ThemeOverlay.EasyInventory.ToolbarPopup" parent="ThemeOverlay.Material3">
+        <!-- Background of the popup -->
+        <item name="colorSurface">@color/ei_popup_bg</item>
+
+        <!-- Text/icon color inside the popup -->
+        <item name="colorOnSurface">@color/ei_popup_text</item>
+
+        <!-- Extra belt-and-suspenders for older widgets -->
+        <item name="android:textColor">@color/ei_popup_text</item>
+        <item name="colorControlNormal">@color/ei_popup_text</item>
+    </style>
+
+</resources>

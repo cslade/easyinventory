@@ -36,6 +36,10 @@
         <color name="textPrimary">#212121</color>
         <color name="textSecondary">#757575</color>
 
+        <!-- popup menu (light) -->
+        <color name="ei_popup_bg">#FFFFFF</color>
+        <color name="ei_popup_text">#202124</color>
+
 
 
 

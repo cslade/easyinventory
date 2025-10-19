@@ -1,41 +1,15 @@
-<?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/menu_toggle_theme"
-        android:title="Light/Dark Mode"
-        android:icon="@drawable/ic_dark_mode"
-        app:showAsAction="never" />
+        android:id="@+id/action_settings"
+        android:title="@string/title_settings"/>
 
-    <!-- User Agreement -->
     <item
-        android:id="@+id/action_user_agreement"
-        android:title="User Agreement"
-        android:icon="@drawable/ic_document"
-        app:showAsAction="never"/>
-
-    <!-- Privacy Policy -->
-    <item
-        android:id="@+id/action_privacy_policy"
-        android:title="Privacy Policy"
-        android:icon="@drawable/ic_privacy"
-        app:showAsAction="never"/>
-
-    <!-- Add the "About" button between Privacy Policy and Logout in menu_main.xml -->
-    <item
-        android:id="@+id/action_about"
-        android:title="About"
-        android:icon="@drawable/ic_info"
-        app:showAsAction="never" />
-
-
-    <!-- Logout Option -->
-    <item
-        android:id="@+id/action_logout"
-        android:title="Logout"
-        android:icon="@drawable/ic_logout"
-        app:showAsAction="never" />
+        android:id="@+id/action_print"
+        android:title="Print label"
+        app:showAsAction="ifRoom|withText" />
 
 
 </menu>
+

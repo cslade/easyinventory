@@ -6,6 +6,26 @@
     android:padding="16dp"
     android:gravity="center">
 
+    <!-- Place near the top of your root layout -->
+    <TextView
+        android:id="@+id/tierBadge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/input_background"
+        android:padding="6dp"
+        android:text="@string/plan_name"
+        android:textStyle="bold"
+        android:visibility="gone" />
+
+    <!-- Optional: a premium-only button you want to gate -->
+    <Button
+        android:id="@+id/btnPrintLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Print Label"
+        android:layout_marginTop="12dp" />
+
+
     <!-- Progress Bar (Initially Visible) -->
     <ProgressBar
         android:id="@+id/progressBar"

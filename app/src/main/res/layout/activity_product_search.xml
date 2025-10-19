@@ -5,18 +5,27 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
-    android:background="@color/white">
+    android:background="@android:color/white">
 
-    <!-- ✅ Toolbar -->
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/pd_toolbar"
+    <!-- Optional tier banner include -->
+    <include
+        android:id="@+id/tierBanner"
+        layout="@layout/include_tier_banner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <!-- Toolbar -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
-        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-        app:title="Inventory Update" />
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.EasyInventory.ToolbarPopup"
+        app:title="Inventory Update"
+        app:titleTextColor="@android:color/white" />
 
-    <!-- ✅ Search Bar & Button -->
+    <!-- Search row -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -28,11 +37,11 @@
             android:layout_width="0dp"
             android:layout_height="50dp"
             android:layout_weight="1"
-            android:background="@drawable/input_background"
-            android:hint="Enter Barcode (Optional)"
-            android:inputType="number"
+            android:hint="Enter barcode (OPTIONAL)"
+            android:inputType="text"
             android:padding="12dp"
-            android:textColor="@color/black"
+            android:background="@android:drawable/edit_text"
+            android:textColor="@android:color/black"
             android:textColorHint="#757575"
             android:textSize="16sp" />
 
@@ -40,54 +49,52 @@
             android:id="@+id/btnSearch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Search"
             android:layout_marginStart="8dp"
-            android:backgroundTint="@color/purple_500"
-            android:textColor="@android:color/white" />
+            android:onClick="onClickSearch"
+            android:text="Search" />
     </LinearLayout>
 
-    <!-- ✅ Progress Bar -->
+    <!-- Progress -->
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone"
-        android:layout_gravity="center"
-        android:layout_marginTop="8dp" />
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="8dp"
+        android:visibility="gone" />
 
-    <!-- ✅ Product Info Text -->
+    <!-- Optional info text -->
     <TextView
         android:id="@+id/tvProductInfo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Product Information"
         android:textSize="16sp"
-        android:textColor="@color/black"
+        android:textColor="@android:color/black"
         android:padding="8dp"
         android:visibility="gone" />
 
-    <!-- ✅ RecyclerView -->
+    <!-- Recycler -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
+        android:id="@+id/recyclerProducts"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:padding="8dp" />
 
-    <!-- ✅ Empty View (NEW!) -->
+    <!-- Empty view -->
     <TextView
         android:id="@+id/emptyView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="No products found."
-        android:textSize="18sp"
         android:textAlignment="center"
         android:gravity="center"
+        android:textSize="18sp"
         android:textColor="@android:color/darker_gray"
         android:padding="24dp"
         android:visibility="gone" />
 
 </LinearLayout>
-
 
 

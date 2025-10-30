@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/loginRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="20dp">
+
+    <!-- Optional inline link to change provider -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/linkChangeProvider"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:minWidth="0dp"
+        android:minHeight="48dp"
+        android:text="@string/action_change_provider"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+
+    <EditText
+        android:id="@+id/inputShopifyAccessToken"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:autofillHints=""
+        android:textSize="15sp"
+        android:hint="Shopify Access Token"
+        android:imeOptions="actionNext"
+        android:importantForAutofill="no"
+        android:inputType="textVisiblePassword"
+        android:minHeight="48dp"
+        android:textColorHint="#757575"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/linkChangeProvider" />
+
+    <EditText
+        android:id="@+id/inputShopifyDomain"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:textSize="15sp"
+        android:autofillHints=""
+        android:hint="Store domain (e.g. myshop)"
+        android:imeOptions="actionDone"
+        android:importantForAutofill="no"
+        android:inputType="textNoSuggestions|textUri"
+        android:minHeight="48dp"
+        android:textColorHint="#757575"
+        app:layout_constraintEnd_toEndOf="@id/inputShopifyAccessToken"
+        app:layout_constraintStart_toStartOf="@id/inputShopifyAccessToken"
+        app:layout_constraintTop_toBottomOf="@id/inputShopifyAccessToken" />
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/switchRememberKeys"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Remember API Key &amp; Secret"
+        app:layout_constraintTop_toBottomOf="@id/inputShopifyDomain"
+        app:layout_constraintStart_toStartOf="@id/inputShopifyDomain" />
+
+    <Button
+        android:id="@+id/buttonContinue"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="@string/btncontinue"
+        app:layout_constraintTop_toBottomOf="@id/switchRememberKeys"
+        app:layout_constraintStart_toStartOf="@id/inputShopifyDomain"
+        app:layout_constraintEnd_toEndOf="@id/inputShopifyDomain" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

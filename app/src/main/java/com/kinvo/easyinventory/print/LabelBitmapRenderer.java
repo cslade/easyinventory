@@ -5,6 +5,7 @@ import android.graphics.*;
 import android.text.TextUtils;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 public final class LabelBitmapRenderer {
     private LabelBitmapRenderer() {}
@@ -43,7 +44,7 @@ public final class LabelBitmapRenderer {
         c.drawText(title, content.left, titleBaseline, text);
 
         // 2) Price (large, right side)
-        String priceStr = "$" + data.price.setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString();
+        String priceStr = "$" + data.price.setScale(2, RoundingMode.HALF_UP).toPlainString();
         float priceSize = content.height() * 0.34f;  // huge
         bold.setTextSize(priceSize);
         float priceWidth = bold.measureText(priceStr);

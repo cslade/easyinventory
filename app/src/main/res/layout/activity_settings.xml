@@ -77,6 +77,17 @@
         android:text="Log out"
         android:onClick="onClickLogout"/>
 
+    <!-- === Provider selection & Shopify credentials === -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?attr/colorOutline"
+        android:layout_marginTop="16dp" />
+
+
+
+
+
     <FrameLayout
         android:id="@+id/settingsContainer"
         android:layout_width="match_parent"

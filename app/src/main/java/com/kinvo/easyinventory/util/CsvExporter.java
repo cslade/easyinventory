@@ -15,7 +15,7 @@ public final class CsvExporter {
             sb.append(cell(p.getSku()))
                     .append(',').append(cell(p.getBarcode()))
                     .append(',').append(cell(p.getDescription()))
-                    .append(',').append(cell(p.getPrice()))
+                    .append(',').append(cell(p.getPriceBig()))
                     .append(',').append(cell(p.getCurrentStock()))
                     .append('\n');
         }

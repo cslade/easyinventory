@@ -31,7 +31,7 @@ public class MembershipLoginActivity extends AppCompatActivity {
         // If already verified, skip straight to API creds screen
         SharedPreferences sp = getSharedPreferences(PREFS_USER, MODE_PRIVATE);
         if (sp.getBoolean(KEY_MEMBERSHIP_OK, false)) {
-            startActivity(new Intent(this, LoginActivity.class));
+            startActivity(new Intent(this, ProviderPickerActivity.class));
             finish();
             return;
         }
@@ -74,7 +74,7 @@ public class MembershipLoginActivity extends AppCompatActivity {
         // you could auto-forward here if you prefer:
         boolean ok = getSharedPreferences(PREFS_USER, MODE_PRIVATE).getBoolean(KEY_MEMBERSHIP_OK, false);
         if (ok) {
-            startActivity(new Intent(this, LoginActivity.class));
+            startActivity(new Intent(this, ProviderPickerActivity.class));
             finish();
         }
     }

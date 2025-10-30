@@ -1,65 +1,96 @@
-// FeatureGate.java
 package com.kinvo.easyinventory;
 
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.util.Log;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 
 public final class FeatureGate {
-    private FeatureGate(){}
+    private FeatureGate() {}
+    private static final String TAG = "FeatureGate";
 
-    /** Allow DEMO + PREMIUM. BASIC -> show upgrade dialog and return false. */
-    public static boolean requirePremiumOrDemo(Context ctx,
-                                               SecurePrefs prefs,
-                                               String featureName,
-                                               String upgradeUrl) {
+    // ---- Public helpers -----------------------------------------------------
+
+    /** DEMO + PREMIUM allowed; BASIC blocked (shows upgrade dialog). */
+    public static boolean requirePremiumOrDemo(
+            Activity activity, SecurePrefs prefs, String featureName, @Nullable String upgradeUrl) {
         Tier tier = resolveTier(prefs);
-
-        if (BuildConfig.DEBUG) {
-            Log.d("FeatureGate",
-                    "Gate: feature=" + featureName +
-                            ", flavor=" + BuildConfig.FLAVOR +
-                            ", IS_DEMO=" + BuildConfig.IS_DEMO +
-                            ", IS_PREMIUM=" + BuildConfig.IS_PREMIUM +
-                            ", IS_BASIC=" + BuildConfig.IS_BASIC +
-                            ", resolvedTier=" + tier);
-        }
-
-        if (tier == Tier.BASIC) {
-            showUpgradeDialog(ctx, featureName, upgradeUrl);
-            return false;
-        }
-        // DEMO or PREMIUM
-        return true;
+        if (tier == Tier.PREMIUM || tier == Tier.DEMO) return true;
+        showUpgradeDialog(activity, featureName, upgradeUrl,
+                featureName + " is available on Demo and Premium plans. Upgrade to continue.");
+        return false;
     }
+
+    /** PREMIUM only; DEMO/BASIC blocked. */
+    public static boolean requirePremium(
+            Activity activity, SecurePrefs prefs, String featureName, @Nullable String upgradeUrl) {
+        Tier tier = resolveTier(prefs);
+        if (tier == Tier.PREMIUM) return true;
+        showUpgradeDialog(activity, featureName, upgradeUrl,
+                featureName + " is available on the Premium plan. Upgrade to continue.");
+        return false;
+    }
+
+    /** Convenience for menu enable/disable. */
+    public static boolean isBasic(SecurePrefs prefs) { return resolveTier(prefs) == Tier.BASIC; }
+
+    /** Optional: call this in onResume while debugging. */
+    public static void debugDump(SecurePrefs prefs) {
+        String prefTier = safe(prefs == null ? null : prefs.getTierName());
+        boolean bd = false, bp = false;
+        String buildTier = null;
+        try { bd = com.kinvo.easyinventory.BuildConfig.IS_DEMO; } catch (Throwable ignore) {}
+        try { bp = com.kinvo.easyinventory.BuildConfig.IS_PREMIUM; } catch (Throwable ignore) {}
+        try { buildTier = com.kinvo.easyinventory.BuildConfig.TIER; } catch (Throwable ignore) {}
+        Log.d(TAG, "resolveTier debug -> IS_DEMO=" + bd + ", IS_PREMIUM=" + bp
+                + ", BuildConfig.TIER=" + buildTier + ", Pref.TIER=" + prefTier);
+    }
+
+    // ---- Core resolution (single source of truth) ---------------------------
 
     private static Tier resolveTier(SecurePrefs prefs) {
-        // 1) BuildConfig flags are authoritative for the installed flavor
-        if (BuildConfig.IS_DEMO)    return Tier.DEMO;
-        if (BuildConfig.IS_PREMIUM) return Tier.PREMIUM;
-        if (BuildConfig.IS_BASIC)   return Tier.BASIC; // default (never reached)
+        // 1) Flavor flags are authoritative
+        try {
+            if (com.kinvo.easyinventory.BuildConfig.IS_DEMO)    return Tier.DEMO;
+            if (com.kinvo.easyinventory.BuildConfig.IS_PREMIUM) return Tier.PREMIUM;
+        } catch (Throwable ignored) {}
 
-        // 2) Persisted tier (if you ever override from server/account)
+        // 2) Build string (in case flags weren’t defined for some reason)
+        try {
+            String t = com.kinvo.easyinventory.BuildConfig.TIER; // "demo"/"basic"/"premium"
+            Tier parsed = Tier.fromString(t);
+            if (parsed != null) return parsed;
+        } catch (Throwable ignored) {}
+
+        // 3) Persisted preference (seeded by Splash)
         if (prefs != null) {
-            Tier t = prefs.getTier();
-            if (t != null) return t;
+            try {
+                Tier p = Tier.fromString(prefs.getTierName());
+                if (p != null) return p;
+            } catch (Throwable ignored) {}
         }
 
-        // 3) Fallback: map flavor name -> tier safely
-        return TierUtils.fromFlavor(BuildConfig.FLAVOR);
+        // 4) Last resort
+        return Tier.BASIC;
     }
 
-    private static void showUpgradeDialog(Context ctx, String featureName, String upgradeUrl) {
-        new AlertDialog.Builder(ctx)
+    // ---- Internals ----------------------------------------------------------
+
+    private static void showUpgradeDialog(Activity activity, String featureName,
+                                          @Nullable String upgradeUrl, String message) {
+        new AlertDialog.Builder(activity)
                 .setTitle("Upgrade required")
-                .setMessage(featureName + " is available on Premium.\nWould you like to see plans?")
-                .setPositiveButton("See Plans", (d, w) -> {
-                    Intent i = new Intent(ctx, WebViewLoginActivity.class);
-                    i.putExtra("authUrl", upgradeUrl);
-                    ctx.startActivity(i);
+                .setMessage(message)
+                .setPositiveButton("Upgrade", (d, w) -> {
+                    if (upgradeUrl != null && !upgradeUrl.trim().isEmpty()) {
+                        activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(upgradeUrl)));
+                    }
                 })
-                .setNegativeButton("Not now", null)
+                .setNegativeButton("Cancel", null)
                 .show();
     }
+
+    private static String safe(String s) { return s == null ? "" : s; }
 }

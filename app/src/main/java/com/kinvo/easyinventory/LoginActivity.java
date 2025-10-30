@@ -3,9 +3,7 @@ package com.kinvo.easyinventory;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Base64;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -13,146 +11,213 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 
-import java.nio.charset.StandardCharsets;
+import com.kinvo.easyinventory.data.DataSource;
 
-/**
- * Collects API Key, Secret, and Location ID, persists them via SecurePrefs,
- * and navigates to ProductSearchActivity.
- */
+import java.util.Locale;
+
 public class LoginActivity extends AppCompatActivity {
 
     private static final String TAG = "LoginActivity";
 
-    private EditText etApiKey;
-    private EditText etApiSecret;
-    private EditText etLocationId;
-    private SwitchCompat switchRemember;
+    // Shared ids across provider layouts
+    private EditText etApiKey;        // EPOS api key
+    private EditText etApiSecret;     // EPOS secret  | CLOVER token (login_clover.xml)
+    private EditText etLocationId;    // EPOS location| CLOVER merchantId (login_clover.xml)
+
+    // Shopify-specific
+    private EditText etShopifyDomain;       // inputShopifyDomain
+    private EditText etShopifyAccessToken;  // inputShopifyAccessToken
+
+    private SwitchCompat switchRemember; // switchRememberKeys (present on each login_*.xml)
     private Button btnContinue;
 
-    private SecurePrefs prefs; // Encrypted helper
+    private DataSource provider = DataSource.EPOSNOW; // default
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login); // ensure this layout has the expected IDs
 
-        etApiKey = findViewById(R.id.inputApiKey);
-        etApiSecret = findViewById(R.id.inputApiSecret);
+        // Resolve provider from prefs
+        try {
+            DataSource ds = SecurePrefs.get(this).getProvider();
+            if (ds != null) provider = ds;
+        } catch (Exception ignored) {}
+
+        // Choose provider-specific layout
+        int layoutRes;
+        switch (provider) {
+            case SHOPIFY: layoutRes = R.layout.activity_login_shopify; break;
+            case CLOVER:  layoutRes = R.layout.activity_login_clover;  break;
+            case EPOSNOW:
+            default:      layoutRes = R.layout.activity_login_eposnow; break;
+        }
+        setContentView(layoutRes);
+
+        // Bind common views (present on every provider layout)
+        etApiKey     = findViewById(R.id.inputApiKey);
+        etApiSecret  = findViewById(R.id.inputApiSecret);
         etLocationId = findViewById(R.id.inputLocationId);
         switchRemember = findViewById(R.id.switchRememberKeys);
-        btnContinue = findViewById(R.id.buttonContinue);
+        btnContinue    = findViewById(R.id.buttonContinue);
+
+// Bind Shopify-only views ONLY when the Shopify layout is active
+        if (provider == DataSource.SHOPIFY) {
+            etShopifyDomain      = findViewById(R.id.inputShopifyDomain);
+            etShopifyAccessToken = findViewById(R.id.inputShopifyAccessToken);
+        } else {
+            etShopifyDomain = null;
+            etShopifyAccessToken = null;
+        }
+
+
+        // Prefill from prefs ONLY when "remember" is ON
+        SecurePrefs p = SecurePrefs.get(this);
+        boolean remember = false;
+        try { remember = p.getRememberApi(); } catch (Exception ignored) {}
+        if (switchRemember != null) switchRemember.setChecked(remember);
 
         try {
-            prefs = SecurePrefs.get(this);
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to init SecurePrefs", e);
-            Toast.makeText(this, "Storage init failed. Please restart the app.", Toast.LENGTH_LONG).show();
-            // If we can’t initialize secure storage, there’s no point continuing.
-            finish();
-            return;
+            switch (provider) {
+                case SHOPIFY:
+                    if (remember) {
+                        if (etShopifyAccessToken != null) etShopifyAccessToken.setText(nz(p.getShopToken()));
+                        if (etShopifyDomain != null)      etShopifyDomain.setText(nz(p.getShopDomain()));
+                    }
+                    break;
+
+                case CLOVER:
+                    // login_clover.xml reuses:
+                    //  - inputApiSecret   -> Clover API Token
+                    //  - inputLocationId  -> Merchant ID
+                    if (remember) {
+                        if (etApiSecret != null)   etApiSecret.setText(nz(p.getCloverAccessToken()));
+                        if (etLocationId != null)  etLocationId.setText(nz(p.getCloverMerchantId()));
+                    }
+                    break;
+
+                case EPOSNOW:
+                default:
+                    if (remember) {
+                        if (etApiKey != null)     etApiKey.setText(nz(p.getApiKey()));
+                        if (etApiSecret != null)  etApiSecret.setText(nz(p.getApiSecret()));
+                        if (etLocationId != null) {
+                            int loc = p.getLocationId();
+                            etLocationId.setText(loc > 0 ? String.valueOf(loc) : "");
+                        }
+                    }
+                    break;
+            }
+        } catch (Exception ignored) {}
+
+        if (btnContinue != null) btnContinue.setOnClickListener(v -> onClickContinue());
+        // Optional "Change provider" action if present in your layout
+        if (findViewById(R.id.linkChangeProvider) != null) {
+            findViewById(R.id.linkChangeProvider).setOnClickListener(v -> changeProvider());
         }
-
-        // Pre-fill from secure prefs if user chose "remember"
-        boolean rememberApi = prefs.getRememberApi();
-        String savedKey = prefs.getApiKey();
-        String savedSecret = prefs.getApiSecret();
-        int savedLocation = prefs.getLocationId();
-
-        Log.d(TAG, "onCreate -> remember=" + rememberApi
-                + ", apiKey=" + mask(savedKey)
-                + ", apiSecret=" + mask(savedSecret)
-                + ", locationId=" + savedLocation);
-
-        if (rememberApi) {
-            if (!TextUtils.isEmpty(savedKey)) etApiKey.setText(savedKey);
-            if (!TextUtils.isEmpty(savedSecret)) etApiSecret.setText(savedSecret);
-            if (savedLocation > 0) etLocationId.setText(String.valueOf(savedLocation));
-            if (switchRemember != null) switchRemember.setChecked(true);
-        }
-
-        btnContinue.setOnClickListener(v -> onContinue());
     }
 
-    private void onContinue() {
-        hideKeyboard();
+    private void changeProvider() {
+        try {
+            SecurePrefs prefs = SecurePrefs.get(this);
+            // Only clear provider choice; let remember flag & creds remain as-is
+            // so if the user returns to the same provider and "remember" is on, we can prefill.
+            prefs.setProvider((DataSource) null);
+        } catch (Exception ignored) {}
 
-        String apiKey = safeTrim(etApiKey.getText());
-        String apiSecret = safeTrim(etApiSecret.getText());
-        String locationStr = safeTrim(etLocationId.getText());
-        boolean remember = switchRemember != null && switchRemember.isChecked();
-
-        Log.d(TAG, "onContinue -> remember=" + remember
-                + ", apiKey=" + mask(apiKey)
-                + ", apiSecret=" + mask(apiSecret)
-                + ", locationStr=" + locationStr);
-
-        if (TextUtils.isEmpty(apiKey) || TextUtils.isEmpty(apiSecret)) {
-            Toast.makeText(this, "Please enter API Key and Secret", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        int locationId = parseLocation(locationStr);
-        if (locationId <= 0) {
-            Toast.makeText(this, "Please enter a valid Location ID", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        String basicHeader = buildBasicHeader(apiKey, apiSecret);
-        Log.d(TAG, "Built Basic header (masked): " + maskHeader(basicHeader));
-
-        // Persist securely
-        // If "remember" is OFF, we still keep location + header but clear key/secret.
-        prefs.setApiKey(remember ? apiKey : "");
-        prefs.setApiSecret(remember ? apiSecret : "");
-        prefs.setLocationId(locationId);
-        prefs.setAuthHeaderBasic(basicHeader);
-        prefs.setRememberApi(remember);
-
-        Log.d(TAG, "Saved to SecurePrefs -> remember=" + remember
-                + ", locationId=" + locationId
-                + ", apiKey=" + mask(apiKey));
-
-        // Navigate to ProductSearchActivity (it should read everything from SecurePrefs)
-        Intent next = new Intent(this, ProductSearchActivity.class);
-        startActivity(next);
+        startActivity(new Intent(this, ProviderPickerActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK));
         finish();
     }
 
-    private static String buildBasicHeader(String key, String secret) {
-        String combo = key + ":" + secret;
-        String enc = Base64.encodeToString(combo.getBytes(StandardCharsets.UTF_8), Base64.NO_WRAP);
-        return "Basic " + enc;
-    }
+    private void onClickContinue() {
+        SecurePrefs p = SecurePrefs.get(this);
+        boolean remember = (switchRemember != null && switchRemember.isChecked());
+        p.setRememberApi(remember); // <-- persist the toggle itself
 
-    private static int parseLocation(String s) {
-        if (TextUtils.isEmpty(s)) return 0;
         try {
-            return Integer.parseInt(s.trim());
-        } catch (NumberFormatException e) {
-            return 0;
+            switch (provider) {
+                case SHOPIFY: {
+                    String token  = etShopifyAccessToken != null ? etShopifyAccessToken.getText().toString().trim() : "";
+                    String domain = etShopifyDomain      != null ? etShopifyDomain.getText().toString().trim()      : "";
+
+                    if (TextUtils.isEmpty(token) || TextUtils.isEmpty(domain)) {
+                        toast("Enter Shopify Admin API access token and store domain");
+                        return;
+                    }
+                    domain = normalizeDomain(domain);
+
+                    // Always save so downstream screens (repositories) can read.
+                    p.setShopToken(token);
+                    p.setShopDomain(domain);
+
+                    // Mark current provider
+                    p.setProvider(DataSource.SHOPIFY);
+                    break;
+                }
+
+                case CLOVER: {
+                    // Reused fields:
+                    //  - inputApiSecret  -> token
+                    //  - inputLocationId -> merchant id
+                    String token      = etApiSecret   != null ? etApiSecret.getText().toString().trim()   : "";
+                    String merchantId = etLocationId  != null ? etLocationId.getText().toString().trim()  : "";
+
+                    if (TextUtils.isEmpty(token) || TextUtils.isEmpty(merchantId)) {
+                        toast("Enter Clover API Token and Merchant ID");
+                        return;
+                    }
+
+                    p.setCloverAccessToken(token);
+                    p.setCloverMerchantId(merchantId);
+                    p.setProvider(DataSource.CLOVER);
+                    break;
+                }
+
+                case EPOSNOW:
+                default: {
+                    String key  = etApiKey    != null ? etApiKey.getText().toString().trim()    : "";
+                    String sec  = etApiSecret != null ? etApiSecret.getText().toString().trim() : "";
+                    String locS = etLocationId!= null ? etLocationId.getText().toString().trim(): "";
+
+                    if (TextUtils.isEmpty(key) || TextUtils.isEmpty(sec)) {
+                        toast("Please enter API key and secret");
+                        return;
+                    }
+                    int loc = 0;
+                    try { loc = TextUtils.isEmpty(locS) ? 0 : Integer.parseInt(locS); } catch (Exception ignored) {}
+
+                    p.setApiKey(key);
+                    p.setApiSecret(sec);
+                    p.setLocationId(loc);
+                    p.setProvider(DataSource.EPOSNOW);
+                    break;
+                }
+            }
+
+            // Navigate to search once creds saved
+            startActivity(new Intent(this, ProductSearchActivity.class));
+            finish();
+
+        } catch (Exception e) {
+            Log.e(TAG, "Login error", e);
+            toast("Login failed");
         }
     }
 
-    private static String safeTrim(CharSequence cs) {
-        return cs == null ? "" : cs.toString().trim();
+    // --- utils ---
+
+    private static String normalizeDomain(String raw) {
+        if (raw == null) return "";
+        String d = raw.trim().toLowerCase(Locale.ROOT);
+        if (d.startsWith("https://")) d = d.substring(8);
+        if (d.startsWith("http://"))  d = d.substring(7);
+        if (!d.contains(".")) d = d + ".myshopify.com";
+        return d;
     }
 
-    private void hideKeyboard() {
-        View v = getCurrentFocus();
-        if (v != null) v.clearFocus();
-    }
+    private static String nz(String s) { return s == null ? "" : s; }
 
-    // Mask helpers for safe logging
-    private static String mask(String s) {
-        if (TextUtils.isEmpty(s)) return "";
-        if (s.length() <= 4) return "****";
-        return s.substring(0, 2) + "****" + s.substring(s.length() - 2);
-    }
-
-    private static String maskHeader(String h) {
-        if (TextUtils.isEmpty(h)) return "";
-        int idx = h.indexOf(' ');
-        if (idx < 0 || idx == h.length() - 1) return "Basic ****";
-        return h.substring(0, idx + 1) + "****";
+    private void toast(String msg) {
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
 }

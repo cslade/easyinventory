@@ -26,13 +26,13 @@ public class SplashActivity extends AppCompatActivity {
         initTierFromBuild();
         setContentView(R.layout.activity_splash); // keep this lightweight
 
-
         // 1) Seed tier from current Gradle flavor so gates are ready immediately.
         try {
             SecurePrefs prefs = SecurePrefs.get(this);
             Tier current = TierUtils.fromFlavor(BuildConfig.FLAVOR); // demo/basic/premium
-            prefs.setTier(current);
-            // optional: friendly plan label; adjust if you map to something prettier
+            // prefs.setTier(current);  // ← OLD (compile error)
+            prefs.setTierName(current.name());  // ← NEW
+            // optional: friendly plan label
             prefs.setPlanName(current.name());
             Log.d(TAG, "Seeded tier from flavor: " + current + " (flavor=" + BuildConfig.FLAVOR + ")");
         } catch (Exception e) {
@@ -53,10 +53,11 @@ public class SplashActivity extends AppCompatActivity {
     private void initTierFromBuild() {
         SecurePrefs prefs = SecurePrefs.get(this);
         Tier tier = resolveTierFromBuild();
-        prefs.setTier(tier);
+        // prefs.setTier((tier == null) ? Tier.BASIC : tier);  // ← OLD
+        prefs.setTierName(((tier == null) ? Tier.BASIC : tier).name());  // ← NEW
 
         // If your SecurePrefs also tracks a plan label, you can set it here:
-        // prefs.setPlanName(tier.name()); // <-- include only if this method exists in your project
+        // prefs.setPlanName(tier.name());
     }
 
     private Tier resolveTierFromBuild() {
@@ -65,19 +66,28 @@ public class SplashActivity extends AppCompatActivity {
         return Tier.BASIC; // default
     }
 
+    private boolean ensureProviderSelected() {
+        SecurePrefs prefs = SecurePrefs.get(this);
+        String provider = String.valueOf(prefs.getProvider());
+        if (provider == null || provider.trim().isEmpty()) {
+            // Let the user pick once; when they hit Continue the picker returns to Splash
+            startActivity(new Intent(this, ProviderPickerActivity.class));
+            finish(); // stop Splash so we re-enter fresh after picker
+            return false;
+        }
+        return true;
+    }
 
     private void navigateNext() {
-        // Simple flag that says whether the user completed your membership login step
+        if (!ensureProviderSelected()) return;
         SharedPreferences sp = getSharedPreferences(PREFS_USER, MODE_PRIVATE);
         boolean membershipOk = sp.getBoolean(KEY_MEMBERSHIP_OK, false);
         Log.d(TAG, "membershipOk=" + membershipOk);
 
         if (membershipOk) {
-            // Membership already verified -> go to API credentials screen
             Log.d(TAG, "Routing -> LoginActivity");
             startActivity(new Intent(this, LoginActivity.class));
         } else {
-            // Otherwise go to MembershipLoginActivity first
             Log.d(TAG, "Routing -> MembershipLoginActivity");
             startActivity(new Intent(this, MembershipLoginActivity.class));
         }

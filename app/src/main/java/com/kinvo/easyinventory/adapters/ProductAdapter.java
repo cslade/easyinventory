@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.kinvo.easyinventory.R;
 import com.kinvo.easyinventory.model.Product;
 
+import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,12 +30,22 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         void onItemClick(@NonNull Product item);
     }
 
+    /** Callback to let the Activity perform the real API update. */
+    public interface OnUpdateStockRequested {
+        void onUpdateStock(@NonNull Product product,
+                           double newStock,
+                           @NonNull Runnable onSuccess,
+                           @NonNull Runnable onFailure);
+    }
+
     private final Context context;
-    private final List<Product> productList; // assumed mutable
-    private final String authToken;
-    private final int locationId;
+    private final List<Product> productList; // mutable backing list
+    // kept for legacy ctor signature; not used inside this adapter
+    @SuppressWarnings("unused") private final String authToken;
+    @SuppressWarnings("unused") private final int locationId;
 
     private OnItemClickListener itemClickListener;
+    private OnUpdateStockRequested updateStockListener;
     private int selectedPos = RecyclerView.NO_POSITION;
 
     public ProductAdapter(Context context, List<Product> productList, String authToken, int locationId) {
@@ -44,15 +55,13 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         this.locationId = locationId;
     }
 
-    // ---------- Public helpers (added) ----------
+    public void setOnItemClickListener(OnItemClickListener l) { this.itemClickListener = l; }
 
-    /** Returns a defensive copy of the items currently shown by the adapter. */
+    public void setOnUpdateStockRequested(OnUpdateStockRequested l) { this.updateStockListener = l; }
+
     @NonNull
-    public List<Product> getCurrentItems() {
-        return new ArrayList<>(productList);
-    }
+    public List<Product> getCurrentItems() { return new ArrayList<>(productList); }
 
-    /** Replace all items and refresh the list. */
     public void setItems(@NonNull List<Product> newItems) {
         productList.clear();
         productList.addAll(newItems);
@@ -60,68 +69,41 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         notifyDataSetChanged();
     }
 
-    /** Returns the currently selected item (if any). */
     public Product getSelectedItem() {
-        if (selectedPos >= 0 && selectedPos < productList.size()) {
-            return productList.get(selectedPos);
-        }
+        if (selectedPos >= 0 && selectedPos < productList.size()) return productList.get(selectedPos);
         return null;
     }
 
-    /** Optional: allow screens to clear selection. */
     public void clearSelection() {
         int prev = selectedPos;
         selectedPos = RecyclerView.NO_POSITION;
         if (prev != RecyclerView.NO_POSITION) notifyItemChanged(prev);
     }
 
-    public void setOnItemClickListener(OnItemClickListener l) {
-        this.itemClickListener = l;
-    }
-
-    // ---------- RecyclerView plumbing ----------
-
-    @NonNull
-    @Override
+    @NonNull @Override
     public ProductViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.item_product, parent, false);
         return new ProductViewHolder(view);
     }
 
-    @Override
-    public void onBindViewHolder(@NonNull ProductViewHolder holder, int position) {
+    @Override public void onBindViewHolder(@NonNull ProductViewHolder holder, int position) {
         Product product = productList.get(position);
 
-        holder.tvProductName.setText(product.getProductName());
-        holder.tvCurrentStock.setText("Stock: " + formatStock(product.getCurrentStock()));
-        holder.tvPrice.setText(formatCurrency(product.getSalePriceExcTax()));
+        holder.tvProductName.setText(nullSafe(product.getDescription()));
+        holder.tvCurrentStock.setText("Current Stock: " + formatStock(product.getCurrentStock() == null ? 0d : product.getCurrentStock()));
+        holder.tvPrice.setText("Price: " + formatCurrency(product.getPriceBig()));
 
         holder.tvStockUpdatedMessage.setVisibility(
                 product.isStockUpdatedMessageVisible() ? View.VISIBLE : View.GONE
         );
 
-        // simple “selection” feedback (optional—use a selector bg if desired)
         holder.itemView.setActivated(position == selectedPos);
-
         holder.itemView.setOnClickListener(v -> onItemTapped(holder.getBindingAdapterPosition()));
 
-        holder.btnUpdateStock.setOnClickListener(v -> {
-            product.setStockUpdatedMessageVisible(true);
-            notifyItemChanged(position);
-
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                product.setStockUpdatedMessageVisible(false);
-                notifyItemChanged(position);
-            }, 10_000);
-
-            showUpdateStockDialog(product);
-        });
+        holder.btnUpdateStock.setOnClickListener(v -> showUpdateStockDialog(product, holder.getBindingAdapterPosition()));
     }
 
-    @Override
-    public int getItemCount() {
-        return productList.size();
-    }
+    @Override public int getItemCount() { return productList.size(); }
 
     private void onItemTapped(int adapterPosition) {
         if (adapterPosition == RecyclerView.NO_POSITION) return;
@@ -132,12 +114,8 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         if (previous != RecyclerView.NO_POSITION) notifyItemChanged(previous);
         notifyItemChanged(selectedPos);
 
-        if (itemClickListener != null) {
-            itemClickListener.onItemClick(productList.get(adapterPosition));
-        }
+        if (itemClickListener != null) itemClickListener.onItemClick(productList.get(adapterPosition));
     }
-
-    // ---------- ViewHolder ----------
 
     public static class ProductViewHolder extends RecyclerView.ViewHolder {
         public final TextView tvProductName, tvCurrentStock, tvPrice, tvStockUpdatedMessage;
@@ -155,23 +133,28 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
     // ---------- UI helpers ----------
 
-    private String formatCurrency(double amount) {
-        return NumberFormat.getCurrencyInstance(Locale.getDefault()).format(amount);
+    private String formatCurrency(BigDecimal amount) {
+        if (amount == null) {
+            return NumberFormat.getCurrencyInstance(Locale.getDefault()).format(0);
+        }
+        return NumberFormat.getCurrencyInstance(Locale.getDefault()).format(amount.doubleValue());
     }
 
     private String formatStock(double s) {
         return (s % 1 == 0) ? String.valueOf((int) s) : String.valueOf(s);
     }
 
-    private void showUpdateStockDialog(Product product) {
+    private static String nullSafe(String s) { return s == null ? "" : s; }
+
+    private void showUpdateStockDialog(Product product, int adapterPos) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle("Update Stock for " + product.getProductName());
+        builder.setTitle("Update Stock for " + nullSafe(product.getDescription()));
 
         final EditText input = new EditText(context);
-        input.setHint("Enter new stock value (+/-)");
+        input.setHint("Enter new stock value (+/- to adjust)");
         builder.setView(input);
 
-        builder.setPositiveButton("Update", null);
+        builder.setPositiveButton("Apply", null);
         builder.setNegativeButton("Cancel", (d, w) -> d.dismiss());
 
         final AlertDialog dialog = builder.create();
@@ -186,17 +169,38 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
             try {
                 double delta = Double.parseDouble(deltaText);
-                double newStock = product.getCurrentStock() + delta;
+                double oldStock = product.getCurrentStock() == null ? 0d : product.getCurrentStock();
+                double newStock = oldStock + delta;
+
+                // optimistic UI
                 product.setCurrentStock(newStock);
                 product.setStockUpdatedMessageVisible(true);
-                notifyDataSetChanged();
+                notifyItemChanged(adapterPos);
 
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                Runnable undo = () -> {
+                    product.setCurrentStock(oldStock);
                     product.setStockUpdatedMessageVisible(false);
-                    notifyDataSetChanged();
-                }, 3000);
+                    notifyItemChanged(adapterPos);
+                };
+                Runnable done = () -> {
+                    // keep new value, briefly show status text
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                        product.setStockUpdatedMessageVisible(false);
+                        notifyItemChanged(adapterPos);
+                    }, 3000);
+                };
 
-                Toast.makeText(context, "Stock updated!", Toast.LENGTH_SHORT).show();
+                if (updateStockListener != null) {
+                    updateStockListener.onUpdateStock(product, newStock, done, () -> {
+                        Toast.makeText(context, "Update failed", Toast.LENGTH_SHORT).show();
+                        undo.run();
+                    });
+                } else {
+                    // fallback: local-only UI
+                    done.run();
+                    Toast.makeText(context, "Stock updated (local only).", Toast.LENGTH_SHORT).show();
+                }
+
                 dialog.dismiss();
             } catch (NumberFormatException e) {
                 Toast.makeText(context, "Invalid stock quantity!", Toast.LENGTH_SHORT).show();

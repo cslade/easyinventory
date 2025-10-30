@@ -7,7 +7,6 @@ public enum Tier {
         if (s == null) return BASIC;
         switch (s.trim().toLowerCase()) {
             case "demo": return DEMO;
-            case "basic": return BASIC;
             case "premium": return PREMIUM;
             default: return BASIC;
         }

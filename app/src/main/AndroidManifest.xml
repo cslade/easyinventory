@@ -5,7 +5,6 @@
 
 
     <application
-        android:name=".MyApplication"
         android:allowBackup="true"
         android:label="@string/app_name"
         android:icon="@mipmap/ic_launcher"
@@ -13,16 +12,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.EasyInventory">
 
-
+        <!-- Membership login (after WebView success) -->
         <activity
-            android:name=".SplashActivity"
-            android:exported="true"
-            android:theme="@style/Theme.EasyInventory">
+            android:name=".MembershipLoginActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
 
         <!-- other activities... -->
         <activity
@@ -31,27 +30,33 @@
             android:label="@string/title_settings"
             android:theme="@style/Theme.EasyInventory" />
 
-        <!-- Membership login (after WebView success) -->
+
+
+
+        <!-- Lets the user choose their inventory provider (Epos Now, Shopify, Clover) -->
         <activity
-            android:name=".MembershipLoginActivity"
-            android:exported="false" />
+            android:name=".ProviderPickerActivity"
+            android:exported="true"
+            android:label="@string/title_provider_picker"
+            android:theme="@style/Theme.EasyInventory" />
+
 
         <!-- API Key & Secret screen -->
         <activity
             android:name=".LoginActivity"
-            android:exported="false" />
+            android:exported="true" />
 
         <!-- Product search -->
         <activity
             android:name=".ProductSearchActivity"
-            android:exported="false" />
+            android:exported="true" />
 
         <!-- Generic webview / OAuth login -->
-        <activity android:name=".PrivacyPolicyActivity" android:exported="false" />
-        <activity android:name=".TermsOfServiceActivity" android:exported="false" />
-        <activity android:name=".UserAgreementActivity" android:exported="false" />
-        <activity android:name=".AboutActivity" android:exported="false" />
-        <activity android:name=".WebViewActivity" android:exported="false" />
+        <activity android:name=".PrivacyPolicyActivity" android:exported="true" />
+        <activity android:name=".TermsOfServiceActivity" android:exported="true" />
+        <activity android:name=".UserAgreementActivity" android:exported="true" />
+        <activity android:name=".AboutActivity" android:exported="true" />
+        <activity android:name=".WebViewActivity" android:exported="true" />
 
         <activity
             android:name=".WebViewLoginActivity"
@@ -84,7 +89,16 @@
             </intent-filter>
         </activity>
 
-        <!-- Policies / docs (optional, keep if you have these activities) -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
 
 
 

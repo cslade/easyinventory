@@ -18,6 +18,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,16 +28,22 @@ public class ProductRequest {
     private final List<Product> productList;
     private final ProductAdapter adapter;
     private final ProgressBar progressBar;
-    private final String authToken;
-    private final View recyclerView; // RecyclerView reference
-    private final TextView emptyView; // EmptyView reference
+    private final String authHeader;      // full header (e.g., "Basic xxxx")
+    private final View recyclerView;
+    private final TextView emptyView;
 
-    public ProductRequest(Context context, List<Product> productList, ProductAdapter adapter, ProgressBar progressBar, String authToken, View recyclerView, TextView emptyView) {
+    public ProductRequest(Context context,
+                          List<Product> productList,
+                          ProductAdapter adapter,
+                          ProgressBar progressBar,
+                          String authHeader,
+                          View recyclerView,
+                          TextView emptyView) {
         this.context = context;
         this.productList = productList;
         this.adapter = adapter;
         this.progressBar = progressBar;
-        this.authToken = authToken;
+        this.authHeader = authHeader;
         this.recyclerView = recyclerView;
         this.emptyView = emptyView;
     }
@@ -51,13 +58,29 @@ public class ProductRequest {
                         JSONArray dataArray = response.getJSONArray("Data");
                         for (int i = 0; i < dataArray.length(); i++) {
                             JSONObject obj = dataArray.getJSONObject(i);
-                            Product product = new Product(
-                                    obj.getInt("ProductId"),
-                                    obj.getString("ProductName"),
-                                    obj.getDouble("CurrentStock"),
-                                    obj.getDouble("SalePriceExcTax")
-                            );
-                            productList.add(product);
+
+                            // Build Product via setters to match your current model
+                            Product p = new Product();
+                            // Provider + ids
+                            p.setProvider("EPOSNOW");
+                            p.setExternalId(String.valueOf(obj.optInt("ProductId")));
+
+                            // Core display fields
+                            p.setDescription(obj.optString("ProductName", ""));
+
+                            // Optional fields if present
+                            // (Uncomment if your endpoint returns these keys)
+                            // p.setSku(obj.optString("SKU", null));
+                            // p.setBarcode(obj.optString("Barcode", null));
+
+                            // Stock and price
+                            double stock = obj.optDouble("CurrentStock", 0.0);
+                            p.setCurrentStock(stock);
+
+                            double price = obj.optDouble("SalePriceExcTax", 0.0);
+                            p.setPriceBig(BigDecimal.valueOf(price));
+
+                            productList.add(p);
                         }
                         adapter.notifyDataSetChanged();
                     } catch (JSONException e) {
@@ -65,7 +88,6 @@ public class ProductRequest {
                         Toast.makeText(context, "Error parsing product data", Toast.LENGTH_SHORT).show();
                     }
 
-                    // Smooth fade out ProgressBar + update view
                     new Handler(Looper.getMainLooper()).postDelayed(() -> {
                         progressBar.animate()
                                 .alpha(0f)
@@ -91,7 +113,7 @@ public class ProductRequest {
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
-                headers.put("Authorization", "Basic " + authToken);
+                headers.put("Authorization", authHeader); // already includes "Basic "
                 headers.put("Content-Type", "application/json");
                 return headers;
             }
@@ -107,11 +129,9 @@ public class ProductRequest {
                     .alpha(1f)
                     .setDuration(500)
                     .setListener(null);
-
         } else {
             recyclerView.setVisibility(View.VISIBLE);
             emptyView.setVisibility(View.GONE);
         }
     }
 }
-

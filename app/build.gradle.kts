@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.kinvo.easyinventory"
-    compileSdk = 36  // OK if you want the latest; otherwise use 34
+    compileSdk = 36 // keep if you want; 34 also fine
 
     defaultConfig {
         applicationId = "com.kinvo.easyinventory"
@@ -17,19 +17,20 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         // 🔑 Manifest placeholders used by AndroidManifest.xml
-        // <data android:scheme="${appScheme}"/>
-        // <data android:host="${authHost}"/>
-        // <data android:pathPrefix="${authPathPrefix}"/>
         manifestPlaceholders["appScheme"] = "easyinventory"
         manifestPlaceholders["authPathPrefix"] = "/auth/callback"
-        manifestPlaceholders["authHost"] = "app.easyinventory.com" // flavors below override as needed
+        manifestPlaceholders["authHost"] = "app.easyinventory.com" // flavors override below
 
-        // BuildConfig defaults (flavors override)
+        // BuildConfig defaults (flavors can override)
         buildConfigField("String",  "TIER", "\"basic\"")
         buildConfigField("String",  "AUTH_BASE_URL", "\"https://app.easyinventory.com\"")
         buildConfigField("String",  "MEMBERSTACK_CALLBACK_PREFIX", "\"https://client.memberstack.com/auth/callback?code=\"")
         buildConfigField("boolean", "IS_PREMIUM", "false")
         buildConfigField("boolean", "IS_DEMO", "false")
+
+        // ✅ New: defaults for Clover + EPOS
+        buildConfigField("String",  "CLOVER_BASE_URL", "\"https://api.clover.com\"")
+        buildConfigField("String",  "EPOS_AWS_REGION", "\"eu-west-1\"")
     }
 
     buildFeatures { buildConfig = true }
@@ -52,7 +53,6 @@ android {
             applicationIdSuffix = ".demo"
             versionNameSuffix = "-demo"
 
-            // BuildConfig for code
             buildConfigField("boolean", "IS_BASIC", "false")
             buildConfigField("boolean", "IS_PREMIUM", "false")
             buildConfigField("boolean", "IS_DEMO", "true")
@@ -62,8 +62,8 @@ android {
             // Deep link host used by the demo site
             manifestPlaceholders["authHost"] = "easyinventory.webflow.io"
 
-            // (Optional) use a unique custom scheme for demo to avoid collisions
-            // manifestPlaceholders["appScheme"] = "easyinvdemo"
+            // Override: point Clover to sandbox in demo
+            buildConfigField("String", "CLOVER_BASE_URL", "\"https://apisandbox.dev.clover.com\"")
         }
 
         create("basic") {
@@ -78,6 +78,7 @@ android {
             buildConfigField("String",  "AUTH_BASE_URL", "\"https://easyinventory.com\"")
 
             manifestPlaceholders["authHost"] = "easyinventory.com"
+            // Clover defaults to prod from defaultConfig
         }
 
         create("premium") {
@@ -92,6 +93,7 @@ android {
             buildConfigField("String",  "AUTH_BASE_URL", "\"https://easyinventory.com\"")
 
             manifestPlaceholders["authHost"] = "easyinventory.com"
+            // Clover defaults to prod from defaultConfig
         }
     }
 
@@ -127,6 +129,7 @@ dependencies {
 
     // Helpful for modern WebView APIs
     implementation("androidx.webkit:webkit:1.11.0")
+    implementation(libs.firebase.components)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

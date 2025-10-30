@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_provider_picker"><![CDATA[<string name=\"provider_picker_subtitle\">Where is your inventory managed?</string>\n<string name=\"provider_eposnow\">Epos Now</string>\n<string name=\"provider_shopify\">Shopify</string>\n<string name=\"provider_clover\">Clover</string>\n]]></string>
+</resources>

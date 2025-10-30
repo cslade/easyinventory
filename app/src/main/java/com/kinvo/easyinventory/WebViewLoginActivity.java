@@ -133,6 +133,10 @@ public class WebViewLoginActivity extends AppCompatActivity {
     }
 
     private void saveMembershipTypeAndTier(String membershipType) {
+        // Mirror success flag for MembershipLoginActivity auto-forward
+        getSharedPreferences("UserPrefs", MODE_PRIVATE)
+                .edit().putBoolean("membershipOk", true).apply();
+
         // Keep a simple mirror in regular SharedPreferences
         SharedPreferences sp = getSharedPreferences("UserPrefs", MODE_PRIVATE);
         sp.edit().putString("membershipType", membershipType).apply();
@@ -148,7 +152,8 @@ public class WebViewLoginActivity extends AppCompatActivity {
                             "Basic".equalsIgnoreCase(membershipType)   ? Tier.BASIC   :
                                     TierUtils.fromFlavor(BuildConfig.FLAVOR);
 
-            prefs.setTier(tier);
+            // FIX: use name-based setter
+            prefs.setTierName(tier.name());
             prefs.setPlanName(membershipType);
         } catch (Exception e) {
             Log.w(TAG, "SecurePrefs not available yet; continuing without setTier()", e);
@@ -157,9 +162,11 @@ public class WebViewLoginActivity extends AppCompatActivity {
 
     private void proceedToLoginActivity() {
         Log.d(TAG, "Proceeding to LoginActivity");
-        Intent intent = new Intent(WebViewLoginActivity.this, LoginActivity.class);
+        Intent intent = new Intent(WebViewLoginActivity.this, ProviderPickerActivity.class);
         startActivity(intent);
         finish();
+        // If you want to go straight to LoginActivity after provider is chosen,
+        // WebViewLoginActivity.onResume() already routes accordingly.
     }
 
     // JS bridge used by onPageFinished() injection
@@ -176,5 +183,19 @@ public class WebViewLoginActivity extends AppCompatActivity {
                 handledSuccessOnce.set(true);
             }
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        try {
+            SecurePrefs prefs = SecurePrefs.get(this);
+            if (prefs.isProviderChosen()) {
+                // Provider selected; continue to credential screen
+                Intent intent = new Intent(WebViewLoginActivity.this, LoginActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        } catch (Exception ignored) {}
     }
 }

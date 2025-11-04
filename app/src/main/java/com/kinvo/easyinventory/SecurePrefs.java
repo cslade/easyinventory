@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.security.crypto.EncryptedSharedPreferences;
 import androidx.security.crypto.MasterKey;
 
@@ -217,6 +218,11 @@ public final class SecurePrefs {
 
     public boolean isLoggedIn()                 { return sp.getBoolean(K_IS_LOGGED_IN, false); }
     public void    setLoggedIn(boolean v)       { sp.edit().putBoolean(K_IS_LOGGED_IN, v).apply(); }
+
+    public boolean hasStoredTier()              { return sp.contains(KEY_TIER); }
+
+    @Nullable
+    public String  peekTierName()               { return hasStoredTier() ? sp.getString(KEY_TIER, null) : null; }
 
     public String  getTierName()                { return sp.getString(KEY_TIER, "BASIC"); }
     public void    setTierName(String name)     { sp.edit().putString(KEY_TIER, nz(name)).apply(); }

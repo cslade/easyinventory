@@ -11,31 +11,9 @@ public final class UpgradeLinks {
         return BuildConfig.FLAVOR != null && BuildConfig.FLAVOR.equalsIgnoreCase("demo");
     }
 
-    // --- tier resolution via name, with flavor fallbacks ---
-    private static Tier resolveTier(SecurePrefs p) {
-        if (p != null) {
-            try {
-                String name = p.getTierName(); // "DEMO" | "BASIC" | "PREMIUM"
-                if (name != null) {
-                    switch (name.trim().toUpperCase()) {
-                        case "DEMO":    return Tier.DEMO;
-                        case "PREMIUM": return Tier.PREMIUM;
-                        case "BASIC":
-                        default:        return Tier.BASIC;
-                    }
-                }
-            } catch (Throwable ignored) {}
-        }
-        try {
-            if (BuildConfig.IS_DEMO)    return Tier.DEMO;
-            if (BuildConfig.IS_PREMIUM) return Tier.PREMIUM;
-        } catch (Throwable ignored) {}
-        return Tier.BASIC;
-    }
-
     /** Choose a sensible upgrade destination based on current tier. */
     public static String getUrlForUpgrade(SecurePrefs p) {
-        Tier t = resolveTier(p);
+        Tier t = TierUtils.resolveTier(p);
         if (t == Tier.DEMO) {
             return isDemoFlavor()
                     ? "https://easyinventory.webflow.io/upgrade-basic"

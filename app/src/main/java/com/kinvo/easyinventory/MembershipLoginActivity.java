@@ -16,10 +16,6 @@ public class MembershipLoginActivity extends AppCompatActivity {
     private static final String PREFS_USER = "UserPrefs";
     private static final String KEY_MEMBERSHIP_OK = "membershipOk";
 
-    // Flavor-dependent login pages
-    private static final String DEMO_AUTH_URL = "https://easyinventory.webflow.io/login";
-    private static final String PROD_AUTH_URL = "https://easyinventory.io/login";
-
     private Button btnLogin;
     private ProgressBar progressBar;
     private SharedPreferences sharedPreferences;
@@ -55,11 +51,10 @@ public class MembershipLoginActivity extends AppCompatActivity {
     private void authenticateUser() {
         progressBar.setVisibility(View.VISIBLE);
 
-        // Pick the correct hosted login URL based on the flavor
-        String authUrl = BuildConfig.IS_DEMO ? DEMO_AUTH_URL : PROD_AUTH_URL;
+        Uri loginUri = Uri.parse(BuildConfig.AUTH_BASE_URL).buildUpon().appendPath("login").build();
 
         Intent intent = new Intent(this, WebViewLoginActivity.class);
-        intent.putExtra("authUrl", authUrl);
+        intent.putExtra("authUrl", loginUri.toString());
         startActivity(intent);
         // Keep this Activity so back returns here if the user cancels auth
     }

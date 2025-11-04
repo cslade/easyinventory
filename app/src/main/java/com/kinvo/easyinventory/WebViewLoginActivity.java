@@ -2,6 +2,7 @@ package com.kinvo.easyinventory;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.webkit.CookieManager;
@@ -23,22 +24,11 @@ public class WebViewLoginActivity extends AppCompatActivity {
     private WebView webView;
 
     // Memberstack OAuth callback (prod)
-    private static final String MEMBERSTACK_CALLBACK = "https://client.memberstack.com/auth/callback?code=";
+    private static final String MEMBERSTACK_CALLBACK_PREFIX = BuildConfig.MEMBERSTACK_CALLBACK_PREFIX;
 
-    // Build-variant aware URLs
-    private static final boolean IS_DEMO = BuildConfig.FLAVOR != null && BuildConfig.FLAVOR.equals("demo");
-
-    private static final String LOGIN_URL =
-            IS_DEMO ? "https://easyinventory.webflow.io/login"
-                    : "https://www.easyinventory.io/login";
-
-    private static final String BASIC_URL =
-            IS_DEMO ? "https://easyinventory.webflow.io/basic/account"
-                    : "https://www.easyinventory.io/basic/account";
-
-    private static final String PREMIUM_URL =
-            IS_DEMO ? "https://easyinventory.webflow.io/premium/account"
-                    : "https://www.easyinventory.io/premium/account";
+    private String loginUrl;
+    private String basicUrl;
+    private String premiumUrl;
 
     // Guard to avoid double-navigation (shouldOverride + JS)
     private final AtomicBoolean handledSuccessOnce = new AtomicBoolean(false);
@@ -49,6 +39,11 @@ public class WebViewLoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_webview);
 
         webView = findViewById(R.id.webView);
+
+        String authBase = BuildConfig.AUTH_BASE_URL;
+        loginUrl = buildUrl(authBase, "login");
+        basicUrl = buildUrl(authBase, "basic", "account");
+        premiumUrl = buildUrl(authBase, "premium", "account");
 
         // WebView settings
         WebSettings ws = webView.getSettings();
@@ -101,8 +96,8 @@ public class WebViewLoginActivity extends AppCompatActivity {
             }
         });
 
-        Log.d(TAG, "Loading LOGIN_URL: " + LOGIN_URL);
-        webView.loadUrl(LOGIN_URL);
+        Log.d(TAG, "Loading LOGIN_URL: " + loginUrl);
+        webView.loadUrl(loginUrl);
     }
 
     /**
@@ -115,9 +110,11 @@ public class WebViewLoginActivity extends AppCompatActivity {
         }
         if (url == null) return false;
 
-        boolean isMemberstackCallback = url.contains(MEMBERSTACK_CALLBACK);
-        boolean isBasic = url.startsWith(BASIC_URL);
-        boolean isPremium = url.startsWith(PREMIUM_URL);
+        boolean isMemberstackCallback = MEMBERSTACK_CALLBACK_PREFIX != null
+                && !MEMBERSTACK_CALLBACK_PREFIX.isEmpty()
+                && url.contains(MEMBERSTACK_CALLBACK_PREFIX);
+        boolean isBasic = basicUrl != null && !basicUrl.isEmpty() && url.startsWith(basicUrl);
+        boolean isPremium = premiumUrl != null && !premiumUrl.isEmpty() && url.startsWith(premiumUrl);
 
         if (isMemberstackCallback || isBasic || isPremium) {
             String membershipType = isPremium ? "Premium" : (isBasic ? "Basic" : "Authenticated");
@@ -146,18 +143,39 @@ public class WebViewLoginActivity extends AppCompatActivity {
             SecurePrefs prefs = SecurePrefs.get(this);
             prefs.setLoggedIn(true);
 
-            // Choose tier: premium/basic from URL; otherwise default from flavor.
-            Tier tier =
-                    "Premium".equalsIgnoreCase(membershipType) ? Tier.PREMIUM :
-                            "Basic".equalsIgnoreCase(membershipType)   ? Tier.BASIC   :
-                                    TierUtils.fromFlavor(BuildConfig.FLAVOR);
+            Tier tier = Tier.fromString(membershipType);
+            if (!"Premium".equalsIgnoreCase(membershipType)
+                    && !"Basic".equalsIgnoreCase(membershipType)) {
+                Tier stored = TierUtils.storedTier(prefs);
+                if (stored != null) {
+                    tier = stored;
+                }
+            }
 
-            // FIX: use name-based setter
             prefs.setTierName(tier.name());
-            prefs.setPlanName(membershipType);
+
+            String planLabel = membershipType;
+            if (planLabel == null || planLabel.trim().isEmpty()
+                    || "Authenticated".equalsIgnoreCase(planLabel)) {
+                planLabel = TierUtils.displayName(tier);
+            }
+            prefs.setPlanName(planLabel);
         } catch (Exception e) {
             Log.w(TAG, "SecurePrefs not available yet; continuing without setTier()", e);
         }
+    }
+
+    private static String buildUrl(String base, String... segments) {
+        if (base == null || base.trim().isEmpty()) {
+            return "";
+        }
+        Uri.Builder builder = Uri.parse(base).buildUpon();
+        for (String segment : segments) {
+            if (segment != null && !segment.trim().isEmpty()) {
+                builder.appendPath(segment);
+            }
+        }
+        return builder.build().toString();
     }
 
     private void proceedToLoginActivity() {

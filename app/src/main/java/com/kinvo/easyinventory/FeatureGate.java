@@ -16,7 +16,7 @@ public final class FeatureGate {
     /** DEMO + PREMIUM allowed; BASIC blocked (shows upgrade dialog). */
     public static boolean requirePremiumOrDemo(
             Activity activity, SecurePrefs prefs, String featureName, @Nullable String upgradeUrl) {
-        Tier tier = resolveTier(prefs);
+        Tier tier = TierUtils.resolveTier(prefs);
         if (tier == Tier.PREMIUM || tier == Tier.DEMO) return true;
         showUpgradeDialog(activity, featureName, upgradeUrl,
                 featureName + " is available on Demo and Premium plans. Upgrade to continue.");
@@ -26,7 +26,7 @@ public final class FeatureGate {
     /** PREMIUM only; DEMO/BASIC blocked. */
     public static boolean requirePremium(
             Activity activity, SecurePrefs prefs, String featureName, @Nullable String upgradeUrl) {
-        Tier tier = resolveTier(prefs);
+        Tier tier = TierUtils.resolveTier(prefs);
         if (tier == Tier.PREMIUM) return true;
         showUpgradeDialog(activity, featureName, upgradeUrl,
                 featureName + " is available on the Premium plan. Upgrade to continue.");
@@ -34,7 +34,9 @@ public final class FeatureGate {
     }
 
     /** Convenience for menu enable/disable. */
-    public static boolean isBasic(SecurePrefs prefs) { return resolveTier(prefs) == Tier.BASIC; }
+    public static boolean isBasic(SecurePrefs prefs) {
+        return TierUtils.resolveTier(prefs) == Tier.BASIC;
+    }
 
     /** Optional: call this in onResume while debugging. */
     public static void debugDump(SecurePrefs prefs) {
@@ -44,36 +46,10 @@ public final class FeatureGate {
         try { bd = com.kinvo.easyinventory.BuildConfig.IS_DEMO; } catch (Throwable ignore) {}
         try { bp = com.kinvo.easyinventory.BuildConfig.IS_PREMIUM; } catch (Throwable ignore) {}
         try { buildTier = com.kinvo.easyinventory.BuildConfig.TIER; } catch (Throwable ignore) {}
+        Tier resolved = TierUtils.resolveTier(prefs);
         Log.d(TAG, "resolveTier debug -> IS_DEMO=" + bd + ", IS_PREMIUM=" + bp
-                + ", BuildConfig.TIER=" + buildTier + ", Pref.TIER=" + prefTier);
-    }
-
-    // ---- Core resolution (single source of truth) ---------------------------
-
-    private static Tier resolveTier(SecurePrefs prefs) {
-        // 1) Flavor flags are authoritative
-        try {
-            if (com.kinvo.easyinventory.BuildConfig.IS_DEMO)    return Tier.DEMO;
-            if (com.kinvo.easyinventory.BuildConfig.IS_PREMIUM) return Tier.PREMIUM;
-        } catch (Throwable ignored) {}
-
-        // 2) Build string (in case flags weren’t defined for some reason)
-        try {
-            String t = com.kinvo.easyinventory.BuildConfig.TIER; // "demo"/"basic"/"premium"
-            Tier parsed = Tier.fromString(t);
-            if (parsed != null) return parsed;
-        } catch (Throwable ignored) {}
-
-        // 3) Persisted preference (seeded by Splash)
-        if (prefs != null) {
-            try {
-                Tier p = Tier.fromString(prefs.getTierName());
-                if (p != null) return p;
-            } catch (Throwable ignored) {}
-        }
-
-        // 4) Last resort
-        return Tier.BASIC;
+                + ", BuildConfig.TIER=" + buildTier + ", Pref.TIER=" + prefTier
+                + ", resolved=" + resolved);
     }
 
     // ---- Internals ----------------------------------------------------------

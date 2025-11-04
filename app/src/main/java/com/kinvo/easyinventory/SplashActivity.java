@@ -23,21 +23,8 @@ public class SplashActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        initTierFromBuild();
+        bootstrapTierIfMissing();
         setContentView(R.layout.activity_splash); // keep this lightweight
-
-        // 1) Seed tier from current Gradle flavor so gates are ready immediately.
-        try {
-            SecurePrefs prefs = SecurePrefs.get(this);
-            Tier current = TierUtils.fromFlavor(BuildConfig.FLAVOR); // demo/basic/premium
-            // prefs.setTier(current);  // ← OLD (compile error)
-            prefs.setTierName(current.name());  // ← NEW
-            // optional: friendly plan label
-            prefs.setPlanName(current.name());
-            Log.d(TAG, "Seeded tier from flavor: " + current + " (flavor=" + BuildConfig.FLAVOR + ")");
-        } catch (Exception e) {
-            Log.w(TAG, "SecurePrefs tier bootstrap failed", e);
-        }
 
         // If opened by a deep link, log it for debugging
         Intent launch = getIntent();
@@ -49,21 +36,28 @@ public class SplashActivity extends AppCompatActivity {
         new Handler(Looper.getMainLooper()).postDelayed(this::navigateNext, SPLASH_DELAY_MS);
     }
 
-    // --- Force the tier from the installed flavor (authoritative) ---
-    private void initTierFromBuild() {
-        SecurePrefs prefs = SecurePrefs.get(this);
-        Tier tier = resolveTierFromBuild();
-        // prefs.setTier((tier == null) ? Tier.BASIC : tier);  // ← OLD
-        prefs.setTierName(((tier == null) ? Tier.BASIC : tier).name());  // ← NEW
+    // --- Seed the tier only when nothing has been persisted yet ---
+    private void bootstrapTierIfMissing() {
+        try {
+            SecurePrefs prefs = SecurePrefs.get(this);
+            if (prefs.hasStoredTier()) {
+                Log.d(TAG, "Existing stored tier detected (" + prefs.getTierName() + "); skipping bootstrap");
+                return;
+            }
 
-        // If your SecurePrefs also tracks a plan label, you can set it here:
-        // prefs.setPlanName(tier.name());
-    }
+            boolean allowFlavorSeed = TierUtils.isEntitlementFlavorBuild();
+            Tier seed = TierUtils.resolveTier(prefs, allowFlavorSeed);
 
-    private Tier resolveTierFromBuild() {
-        if (BuildConfig.IS_DEMO)    return Tier.DEMO;
-        if (BuildConfig.IS_PREMIUM) return Tier.PREMIUM;
-        return Tier.BASIC; // default
+            prefs.setTierName(seed.name());
+            if (prefs.getPlanName() == null || prefs.getPlanName().trim().isEmpty()) {
+                prefs.setPlanName(TierUtils.displayName(seed));
+            }
+
+            Log.d(TAG, "Seeded initial tier=" + seed
+                    + (allowFlavorSeed ? " (from flavor " + BuildConfig.FLAVOR + ")" : " (default)"));
+        } catch (Exception e) {
+            Log.w(TAG, "SecurePrefs tier bootstrap failed", e);
+        }
     }
 
     private boolean ensureProviderSelected() {

@@ -19,11 +19,11 @@ android {
         // 🔑 Manifest placeholders used by AndroidManifest.xml
         manifestPlaceholders["appScheme"] = "easyinventory"
         manifestPlaceholders["authPathPrefix"] = "/auth/callback"
-        manifestPlaceholders["authHost"] = "app.easyinventory.com" // flavors override below
+        manifestPlaceholders["authHost"] = "easyinventory.io" // flavors override below
 
         // BuildConfig defaults (flavors can override)
         buildConfigField("String",  "TIER", "\"basic\"")
-        buildConfigField("String",  "AUTH_BASE_URL", "\"https://app.easyinventory.com\"")
+        buildConfigField("String",  "AUTH_BASE_URL", "\"https://easyinventory.io\"")
         buildConfigField("String",  "MEMBERSTACK_CALLBACK_PREFIX", "\"https://client.memberstack.com/auth/callback?code=\"")
         buildConfigField("boolean", "IS_PREMIUM", "false")
         buildConfigField("boolean", "IS_DEMO", "false")
@@ -42,6 +42,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
 
@@ -75,7 +76,7 @@ android {
             buildConfigField("boolean", "IS_PREMIUM", "false")
             buildConfigField("boolean", "IS_DEMO", "false")
             buildConfigField("String",  "TIER", "\"basic\"")
-            buildConfigField("String",  "AUTH_BASE_URL", "\"https://easyinventory.com\"")
+            buildConfigField("String",  "AUTH_BASE_URL", "\"https://easyinventory.io\"")
 
             manifestPlaceholders["authHost"] = "easyinventory.com"
             // Clover defaults to prod from defaultConfig
@@ -90,9 +91,9 @@ android {
             buildConfigField("boolean", "IS_PREMIUM", "true")
             buildConfigField("boolean", "IS_DEMO", "false")
             buildConfigField("String",  "TIER", "\"premium\"")
-            buildConfigField("String",  "AUTH_BASE_URL", "\"https://easyinventory.com\"")
+            buildConfigField("String",  "AUTH_BASE_URL", "\"https://easyinventory.io\"")
 
-            manifestPlaceholders["authHost"] = "easyinventory.com"
+            manifestPlaceholders["authHost"] = "easyinventory.io"
             // Clover defaults to prod from defaultConfig
         }
     }

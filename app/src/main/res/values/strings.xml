@@ -43,6 +43,9 @@
     <string name="eposnow_api_key">EPOSNow API Key</string>
     <string name="eposnow_api_secret">EPOSNow API Secret</string>
     <string name="remember_api_key_secret">Remember API Key-Secret</string>
+    <string name="print_label">Print label</string>
+    <string name="upgrade_required">Upgrade required</string>
+    <string name="printing_label">Printing label…</string>
 
 
 </resources>

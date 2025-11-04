@@ -330,18 +330,23 @@ public class ProductSearchActivity extends AppCompatActivity {
     }
 
     @Override public boolean onPrepareOptionsMenu(Menu menu) {
-        boolean isBasic = FeatureGate.isBasic(SecurePrefs.get(this));
+        SecurePrefs prefs = SecurePrefs.get(this);
+        Tier tier = TierUtils.resolveTier(prefs);
         MenuItem print = menu.findItem(R.id.action_print);
         MenuItem csv   = menu.findItem(R.id.action_export_csv);
 
         if (print != null) {
             print.setVisible(true);
-            print.setEnabled(true); // keep enabled so taps trigger dialog for BASIC
+            print.setEnabled(true); // keep enabled so taps trigger dialog for BASIC/DEMO
         }
         if (csv != null) {
             csv.setVisible(true);
             csv.setEnabled(true);
-            if (isBasic) { csv.setTitle("Export CSV (Upgrade)"); }
+            if (tier != Tier.PREMIUM) {
+                csv.setTitle("Export CSV (Premium)");
+            } else {
+                csv.setTitle("Export CSV");
+            }
         }
         return super.onPrepareOptionsMenu(menu);
     }
@@ -366,7 +371,7 @@ public class ProductSearchActivity extends AppCompatActivity {
             return true;
 
         } else if (id == R.id.action_export_csv) {
-            if (!FeatureGate.requirePremiumOrDemo(this, SecurePrefs.get(this), "Export CSV", UPGRADE_URL)) {
+            if (!FeatureGate.requirePremium(this, SecurePrefs.get(this), "Export CSV", UPGRADE_URL)) {
                 return true; // blocked by dialog
             }
             exportCsv();
@@ -417,7 +422,7 @@ public class ProductSearchActivity extends AppCompatActivity {
 
     private void exportCsv() {
         try {
-            if (!FeatureGate.requirePremiumOrDemo(this, SecurePrefs.get(this), "Export CSV", UPGRADE_URL)) return;
+            if (!FeatureGate.requirePremium(this, SecurePrefs.get(this), "Export CSV", UPGRADE_URL)) return;
             if (productList.isEmpty()) {
                 Toast.makeText(this, "Nothing to export.", Toast.LENGTH_SHORT).show();
                 return;

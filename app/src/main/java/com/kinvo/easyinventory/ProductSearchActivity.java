@@ -338,6 +338,11 @@ public class ProductSearchActivity extends AppCompatActivity {
         if (print != null) {
             print.setVisible(true);
             print.setEnabled(true); // keep enabled so taps trigger dialog for BASIC/DEMO
+            if (tier != Tier.PREMIUM) {
+                print.setTitle("Print Label (Premium)");
+            } else {
+                print.setTitle("Print Label");
+            }
         }
         if (csv != null) {
             csv.setVisible(true);
